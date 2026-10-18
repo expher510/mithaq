@@ -165,6 +165,6 @@
     font-family: var(--font-cairo), Arial, Tahoma, sans-serif;
   }
   .font-serif {
-    font-family: var(--font-cairo), Arial, Tahoma, sans-serif;
+    font-family: Arial, Tahoma, sans-serif !important;
   }
 }
