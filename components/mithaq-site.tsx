@@ -50,7 +50,7 @@ export function MithaqSite() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#0f172a]/10 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <a href="#home" className="flex items-center gap-3" aria-label="ميثاق - الصفحة الرئيسية">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Monogram-NbCedXoklPiKsa6Hq8FlXEmYnd9QPp.png" alt="مونوغرام ميثاق" className="h-10 w-20 object-cover object-center" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Gemini_Generated_Image_r5lzezr5lzezr5lz-PqZNRQHHlVtFXdykIEsy4wHu8mnlfF.jpg" alt="شعار ميثاق M Q" className="h-10 w-20 object-contain object-center" />
           </a>
           <nav className="hidden items-center gap-8 text-sm text-[#475569] md:flex" aria-label="التنقل الرئيسي">
             <a className="transition hover:text-[#d3aa5c]" href="#about">عن ميثاق</a>
