@@ -50,7 +50,7 @@ export function MithaqSite() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#0f172a]/10 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <a href="#home" className="flex items-center gap-3" aria-label="ميثاق - الصفحة الرئيسية">
-            <span className="text-xl font-bold tracking-tight text-[#0f172a]">ميثاق <span className="text-[#c2a672]">|</span> للمحاماة</span>
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Monogram-NbCedXoklPiKsa6Hq8FlXEmYnd9QPp.png" alt="مونوغرام ميثاق" className="h-10 w-20 object-cover object-center" />
           </a>
           <nav className="hidden items-center gap-8 text-sm text-[#475569] md:flex" aria-label="التنقل الرئيسي">
             <a className="transition hover:text-[#d3aa5c]" href="#about">عن ميثاق</a>
@@ -58,7 +58,7 @@ export function MithaqSite() {
             <a className="transition hover:text-[#d3aa5c]" href="#team">فريق المحامين</a>
             <a className="transition hover:text-[#d3aa5c]" href="#contact">تواصل معنا</a>
           </nav>
-          <div className="hidden items-center gap-3 lg:flex" aria-label="روابط التواصل الاجتماعي"><a href="https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على فيسبوك" className="rounded-full border border-[#d3aa5c]/40 p-2 text-[#d3aa5c] transition hover:bg-[#d3aa5c] hover:text-[#0f172a]"><span className="text-base font-black">f</span></a><a href="https://www.instagram.com/mithaq.law1" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على إنستغرام" className="rounded-full border border-[#d3aa5c]/40 p-2 text-[#d3aa5c] transition hover:bg-[#d3aa5c] hover:text-[#0f172a]"><span className="text-xs font-black">ig</span></a></div><a href="#contact" className="hidden rounded-full border border-[#cda454] px-5 py-2 text-sm font-semibold text-[#e0b766] transition hover:bg-[#cda454] hover:text-[#0f172a] sm:inline-flex">احجز استشارتك</a>
+          <div className="hidden items-center gap-2 lg:flex" aria-label="روابط التواصل الاجتماعي"><a href="https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على فيسبوك" className="inline-flex items-center gap-2 rounded-full border border-[#0f172a]/20 bg-[#0f172a] px-4 py-2.5 text-sm font-bold text-white transition-all duration-500 hover:-translate-y-0.5 hover:bg-[#c2a672] hover:text-[#0f172a]"><span className="text-base font-black">f</span><span>فيسبوك</span></a><a href="https://www.instagram.com/mithaq.law1" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على إنستغرام" className="inline-flex items-center gap-2 rounded-full border border-[#0f172a]/20 bg-[#0f172a] px-4 py-2.5 text-sm font-bold text-white transition-all duration-500 hover:-translate-y-0.5 hover:bg-[#c2a672] hover:text-[#0f172a]"><span className="text-xs font-black">ig</span><span>إنستغرام</span></a></div><a href="#contact" className="hidden rounded-full border border-[#cda454] px-5 py-2 text-sm font-semibold text-[#e0b766] transition hover:bg-[#cda454] hover:text-[#0f172a] sm:inline-flex">احجز استشارتك</a>
           <button className="inline-flex rounded-lg p-2 text-[#d3aa5c] md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'} aria-expanded={menuOpen}>
             {menuOpen ? <X /> : <Menu />}
           </button>
