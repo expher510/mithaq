@@ -1,108 +1,1434 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowUpLeft,
-  BriefcaseBusiness,
-  Building2,
+  Award,
+  Briefcase,
+  Building,
+  Check,
   ChevronDown,
+  Clock,
+  FileSpreadsheet,
   Gavel,
+  Mail,
+  MapPin,
   Menu,
-  MessageCircle,
+  Phone,
   Scale,
   ShieldCheck,
-  Sparkles,
+  Star,
+  Users,
   X,
 } from 'lucide-react'
 
-const iconUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ICON-6mU4nGQdMg9sJRvmyOSYYl5zdC0ixl.png'
-
-const services = [
-  { icon: Scale, title: 'الاستشارات القانونية', text: 'رؤية قانونية واضحة تساعدك على اتخاذ القرار الصحيح بثقة.' },
-  { icon: BriefcaseBusiness, title: 'القضايا العمالية', text: 'حماية حقوق العامل وصاحب العمل في كل مراحل النزاع.' },
-  { icon: ShieldCheck, title: 'القضايا الجنائية والجنح', text: 'دفاع قانوني قوي وحضور حازم في القضايا الجنائية.' },
-  { icon: Building2, title: 'قضايا الأسرة', text: 'حلول تحفظ الحقوق وتراعي خصوصية كل أسرة.' },
-  { icon: Gavel, title: 'مجلس الدولة', text: 'تمثيل احترافي في المنازعات والطعون الإدارية.' },
-  { icon: Sparkles, title: 'صياغة العقود', text: 'عقود دقيقة تحمي مصالحك وتقلل المخاطر المستقبلية.' },
+// Practice areas data
+const practiceAreas = [
+  {
+    id: 'criminal',
+    icon: Gavel,
+    title: 'الجنايات والجرائم الاقتصادية',
+    tag: 'حضور جنائي حازم',
+    description: 'تمثيل قانوني ودفاع استراتيجي رفيع المستوى في قضايا الجنايات، الأموال العامة، الجرائم المصرفية والجرائم الإلكترونية.',
+    features: ['مرافعة أمام محاكم الجنايات والنقض', 'قضايا الكسب غير المشروع والأموال العامة', 'الجرائم الاقتصادية وغسيل الأموال'],
+  },
+  {
+    id: 'corporate',
+    icon: Building,
+    title: 'قضايا الشركات والتحكيم التجاري',
+    tag: 'حماية الاستثمارات',
+    description: 'حماية متكاملة لمصالح الشركات المحلية والدولية، إدارة النزاعات التجارية، وتمثيل الموكلين في هيئات التحكيم المحلي والدولي.',
+    features: ['إدارة المنازعات بين الشركاء', 'التمثيل في قضايا التحكيم التجاري (CRCICA)', 'إعادة الهيكلة والتصفية والاندماج'],
+  },
+  {
+    id: 'labor',
+    icon: Briefcase,
+    title: 'القضايا العمالية ومنازعات العمل',
+    tag: 'توازن وحماية الحقوق',
+    description: 'تسوية النزاعات العمالية المعقدة لأصحاب الأعمال والموظفين، صياغة لوائح العمل وحماية الحقوق المالية والمكافآت.',
+    features: ['دعاوى الفصل التعسفي والتعويضات', 'صياغة واعتماد لوائح العمل الداخلية', 'التمثيل أمام مكاتب ومحاكم العمل'],
+  },
+  {
+    id: 'administrative',
+    icon: Scale,
+    title: 'مجلس الدولة والقضاء الإداري',
+    tag: 'خبرة إدارية رائدة',
+    description: 'الطعن على القرارات الإدارية، منازعات العقود الإدارية والمزايدات والمناقصات الحكومية ودعاوى الإلغاء والتعويض.',
+    features: ['الطعن أمام المحكمة الإدارية العليا', 'منازعات الضرائب والجمارك والقرارات السيادية', 'دعاوى التراخيص ومصادرات الأملاك'],
+  },
+  {
+    id: 'contracts',
+    icon: FileSpreadsheet,
+    title: 'صياغة العقود وتأسيس الشركات',
+    tag: 'تحصين قانوني استباقي',
+    description: 'صياغة وتدقيق العقود بمختلف أنواعها باللغتين العربية والإنجليزية لتقليل المخاطر وسد الثغرات القانونية قبل توقيعها.',
+    features: ['تأسيس الشركات بجميع أشكالها القانونية', 'عقود الاستثمار والشراكات الاستراتيجية', 'اتفاقيات عدم الإفصاح والسرية (NDA)'],
+  },
+  {
+    id: 'family',
+    icon: Users,
+    title: 'قضايا الأسرة والتركات والوصايا',
+    tag: 'خصوصية واحترافية تامة',
+    description: 'حلول تحفظ الحقوق والكرامة وتراعي أقصى درجات السرية والخصوصية في قضايا الأحوال الشخصية وقسمة التركات الرضائية والقضائية.',
+    features: ['قسمة التركات وفرز وتجنيب الأملاك', 'قضايا الأحوال الشخصية للمسلمين وغير المسلمين', 'توثيق الوصايا وإدارة الأوقاف العائلية'],
+  },
 ]
 
-export function MithaqSite() {
-  const [menuOpen, setMenuOpen] = useState(false)
+// The 5-step process workflow (Verdict Signature Process Tabs)
+const processSteps = [
+  {
+    step: '01',
+    title: 'الاستقبال والتدقيق المبدئي',
+    subtitle: 'Case Intake & Legal Audit',
+    summary: 'جلسة استماع تفصيلية مع الموكل لفحص كافة المستندات والأوراق القانونية، وتحديد نقاط القوة والمخاطر المحتملة بموضوعية تامة.',
+    deliverables: [
+      'فحص مستندي شامل لكافة عقود ومراسلات القضية',
+      'تحديد الإطار الزمني المتوقع والإجراءات الفورية',
+      'تقرير رأي قانوني مبدئي يحدد احتمالات النجاح',
+    ],
+    duration: '24 - 48 ساعة',
+    guarantee: 'سرية بيانات مشددة بموجب ميثاق الشرف',
+  },
+  {
+    step: '02',
+    title: 'بناء الاستراتيجية القضائية',
+    subtitle: 'Strategic Roadmap',
+    summary: 'وضع خطة هجومية ودفاعية محكمة مستندة إلى أحكام محكمة النقض والدستورية العليا السابقة لضمان أعلى نسب النجاح.',
+    deliverables: [
+      'صياغة خطة عمل مرحلية للنزاع القضائي',
+      'تجهيز الدفوع الشكلية والموضوعية المسبقة',
+      'تحديد استراتيجية المفاوضة في حال أمكن التسوية الودية',
+    ],
+    duration: '3 - 5 أيام عمل',
+    guarantee: 'مراجعة ثنائية من شريكين بالنقض',
+  },
+  {
+    step: '03',
+    title: 'جمع الأدلة وصياغة المذكرات',
+    subtitle: 'Discovery & Pleadings',
+    summary: 'إعداد عرائض الدعاوى ومذكرات الدفاع وصحف الاستئناف أو النقض بأسلوب صلب ومفصل ومدعوم بحجج واقعية لا تقبل الشك.',
+    deliverables: [
+      'صياغة مذكرة الدفاع الأولى مع حوافظ المستندات',
+      'استخراج الشهادات الرسمية وإجراء المعاينات المطلوبة',
+      'عرض المسودة على الموكل للمراجعة والاعتماد',
+    ],
+    duration: 'أسبوع عمل',
+    guarantee: 'توثيق رسمي وحافظة مستندات مرتبة كودياً',
+  },
+  {
+    step: '04',
+    title: 'المرافعة وإدارة الجلسات',
+    subtitle: 'Court Advocacy & Trial',
+    summary: 'حضور كبار المحامين في ساحات المحاكم لتقديم المرافعة الشفوية بثبات ودهاء قانوني، وتتبع كل تفصيلة في محاضر الجلسات.',
+    deliverables: [
+      'حضور محامٍ مقيد بالنقض أو الاستئناف في كل جلسة',
+      'تقرير فوري للموكل عقب انتهاء الجلسة بمجرياتها',
+      'إيداع المذكرات التكميلية والمستندات الإضافية',
+    ],
+    duration: 'وفق جدول المحكمة',
+    guarantee: 'تحديث الموكل عبر تقارير رسمية وواتساب',
+  },
+  {
+    step: '05',
+    title: 'صدور الحكم والتنفيذ الجبري',
+    subtitle: 'Verdict & Enforcement',
+    summary: 'لا تنتهي مهمتنا بصدور الحكم بل تمتد للحصول على الصيغة التنفيذية وتطبيق الحكم على أرض الواقع واسترداد كامل الحقوق.',
+    deliverables: [
+      'استلام النسخة الرسمية للحكم والصيغة التنفيذية',
+      'تنفيذ الحجوزات أو الإجراءات الجبرية عبر إدارة التنفيذ',
+      'إغلاق الملف القانوني وتسليم المخالصات المعتمدة',
+    ],
+    duration: 'فوري عقب صدور الحكم',
+    guarantee: 'إشراف كامل حتى دخول الحقوق حيز الواقع',
+  },
+]
+
+// Testimonials data for infinite marquee
+const testimonials = [
+  {
+    quote: 'مكتب ميثاق غيّر مجرى قضيتنا التجارية المعقدة. تم بناء خطة الدفاع قبل الجلسة الأولى بدقة متناهية، وبدا الفارق الشاسع في خبرة المحامين أمام منصة القضاء.',
+    author: 'م. طارق العوضي',
+    role: 'رئيس مجلس إدارة مجموعة استثمارية',
+    tag: 'قضايا شركات وتحكيم',
+    rating: 5,
+  },
+  {
+    quote: 'تعاملت مع عدة مكاتب كبرى في مصر، لكن الاهتمام الفردي والدقة التي وجدتها لدى ميثاق كانت استثنائية. كل ورقة فُحصت بعناية محامٍ بالنقض شخصياً.',
+    author: 'د. حسام الشربيني',
+    role: 'مؤسس شركة للصناعات الدوائية',
+    tag: 'نزاع عمالي وتجاري',
+    rating: 5,
+  },
+  {
+    quote: 'الصدق هو ما يميزهم أولاً. أوضحوا لي مواطن الضعف في موقفي قبل مواطن القوة، وبفضل خبرتهم في مجلس الدولة استعدنا تراخيص مشروعنا بالكامل.',
+    author: 'أ. سامح عبد الفتاح',
+    role: 'مطور عقاري',
+    tag: 'مجلس الدولة والقضاء الإداري',
+    rating: 5,
+  },
+  {
+    quote: 'حسموا دعوى جنائية حساسة جداً وبراءة موكلنا في وقت قياسي. هيبة الحضور في قاعة المحكمة والمرافعة المحكمة كانت مصدر ثقة واطمئنان عظيم لنا.',
+    author: 'المستشار وائل سراج',
+    role: 'رجل أعمال ومستثمر',
+    tag: 'قضايا الجنايات الاقتصادية',
+    rating: 5,
+  },
+  {
+    quote: 'صياغة العقود التجارية والاتفاقيات الدولية التي أعدوها لشركتنا وفرت علينا نزاعات بملايين الجنيهات. ميثاق هم درعنا القانوني المعتمد دائماً.',
+    author: 'م. نادية منصور',
+    role: 'المدير التنفيذي لشركة تكنولوجيا معلومات',
+    tag: 'صياغة عقود واستشارات',
+    rating: 5,
+  },
+]
+
+// FAQ Data
+const faqs = [
+  {
+    q: 'كيف يتم تحديد أتعاب المحاماة في ميثاق؟',
+    a: 'نتبع سياسة تسعير شفافة تماماً ومحددة في عقد اتفاق أتعاب مسبق. تعتمد الأتعاب على طبيعة القضية ودرجة تعقيدها والجهد المطلوب، دون أي مصاريف خفية أو مفاجآت لاحقة.',
+  },
+  {
+    q: 'هل يمكنني الحصول على استشارة قانونية عاجلة أونلاين؟',
+    a: 'نعم، نوفر خدمة الاستشارات القانونية عن بعد عبر مكالمات الفيديو المشفرة (Zoom / Google Meet) أو الاتصال الهاتفي، مع إمكانية إرسال وفحص المستندات إلكترونياً بأمان تام.',
+  },
+  {
+    q: 'ما هي الإجراءات المطلوبة لتوكيل محامٍ في قضيتي؟',
+    a: 'الخطوة الأولى هي جلسة فحص الأوراق والاستشارة المبدئية، وبعد الاتفاق يتم تحرير توكيل قضايا رسمي بأي مكتب توثيق للشهر العقاري، ثم نبدأ الإجراءات القضائية فوراً.',
+  },
+  {
+    q: 'ما الذي يميز مكتب ميثاق عن غيره من المكاتب؟',
+    a: 'نحن ندمج بين هيبة وقوة الحضور القضائي في ساحات المحاكم بقيادة محامين مقيدين بالنقض، وبين المعايير المؤسسية الحديثة في إدارة القضايا والتواصل المستمر مع الموكل.',
+  },
+  {
+    q: 'هل تقدمون خدمات الاستشارات السنوية للشركات؟',
+    a: 'نعم، نقدم عقود رعاية واستشارات قانونية دورية للشركات تشمل تأسيس الشركات، مراجعة العقود، الامتثال القانوني، وإدارة النزاعات العمالية والتجارية باشتراك شهري أو سنوي مرن.',
+  },
+]
+
+const navLinks = [
+  { href: '#about', label: 'عن ميثاق' },
+  { href: '#services', label: 'الخدمات' },
+  { href: '#process', label: 'مسار القضية' },
+  { href: '#team', label: 'المحامون' },
+  { href: '#faq', label: 'الأسئلة الشائعة' },
+]
+
+const serviceOptions = [
+  'جنايات وجرائم اقتصادية',
+  'قضايا شركات وتحكيم تجاري',
+  'منازعات عمالية',
+  'مجلس دولة وقضاء إداري',
+  'صياغة وتدقيق عقود',
+  'قضايا أسرة وتركات',
+  'استشارة عامة',
+]
+
+const consultationOptions = ['مكتبية في مقر ميثاق', 'مكالمة هاتفية عاجلة', 'اجتماع فيديو أونلاين (Zoom)']
+
+const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI']
+
+const lawyers = [
+  {
+    photo: '/images/lawyer-1.png',
+    alt: 'أ. أحمد أبو زيد، الشريك المؤسس لمكتب ميثاق',
+    name: 'أ. أحمد أبو زيد',
+    role: 'الشريك المؤسس',
+    credential: 'محامٍ بالنقض والدستورية العليا',
+    bio: 'خبرة قضائية تتجاوز 18 عاماً في الدعاوى الجنائية الكبرى، قضايا الأموال العامة، والنزاعات الاستثمارية.',
+  },
+  {
+    photo: '/images/lawyer-2.png',
+    alt: 'الشريك الأول لمكتب ميثاق',
+    name: 'أ. شريك قانوني أول',
+    role: 'شريك رئيسي',
+    credential: 'مستشار مجلس الدولة والشركات',
+    bio: 'متخصص في الطعون الإدارية أمام مجلس الدولة، قضايا الضرائب والجمارك، وصياغة العقود الدولية.',
+  },
+]
+
+const toArabicDigits = (n: number) => n.toLocaleString('ar-EG')
+
+type FormErrors = Partial<Record<'name' | 'phone' | 'details', string>>
+
+function validate(data: { name: string; phone: string; details: string }): FormErrors {
+  const errors: FormErrors = {}
+  if (data.name.trim().length < 3) errors.name = 'اكتب اسمك الكامل (3 أحرف على الأقل).'
+  const digits = data.phone.replace(/\D/g, '')
+  if (!digits) errors.phone = 'أدخل رقم هاتف أو واتساب للتواصل معك.'
+  else if (digits.length < 10 || digits.length > 15) errors.phone = 'رقم الهاتف غير مكتمل. مثال: 01001234567'
+  if (data.details.trim().length < 15) errors.details = 'اكتب ملخصاً من سطر أو سطرين حتى نوجّه طلبك للمستشار المختص.'
+  return errors
+}
+
+/* Brand glyphs (lucide no longer ships brand icons) */
+function FacebookGlyph(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.6-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H8v3h2.5V21h3Z" />
+    </svg>
+  )
+}
+function InstagramGlyph(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true" {...props}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="3.8" />
+      <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+function WhatsAppGlyph(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Zm0 16.4c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.7.7.7-2.6-.2-.3A7.4 7.4 0 1 1 12 19.4Zm4.1-5.5c-.2-.1-1.3-.7-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6 6 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.2 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.5a.9.9 0 0 0-.6.3 2.7 2.7 0 0 0-.8 2c0 1.2.9 2.3 1 2.5.1.2 1.7 2.7 4.2 3.7 1.6.6 2.2.7 3 .6.5-.1 1.3-.6 1.5-1.1.2-.6.2-1 .1-1.1l-.6-.3Z" />
+    </svg>
+  )
+}
+
+/* Wordmark: the Arabic name with the firm's M|Q monogram set beside it. */
+function Wordmark({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+  return (
+    <span className="flex items-center gap-2.5">
+      <span
+        dir="ltr"
+        className={`flex items-center gap-1 font-light tracking-[0.12em] ${tone === 'light' ? 'text-copper-glow' : 'text-copper-ink'}`}
+        aria-hidden="true"
+      >
+        M<span className="h-4 w-px bg-current opacity-70" />Q
+      </span>
+      <span className="text-xl font-bold">ميثاق</span>
+    </span>
+  )
+}
+
+/* Small pill label used to name a section. */
+function SectionLabel({ children, tone = 'dark' }: { children: React.ReactNode; tone?: 'dark' | 'light' }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-medium ${
+        tone === 'light' ? 'border-white/15 text-white/80' : 'border-sand text-ink-3'
+      }`}
+    >
+      <span aria-hidden="true" className="size-1 rounded-full bg-copper" />
+      {children}
+      <span aria-hidden="true" className="size-1 rounded-full bg-copper" />
+    </span>
+  )
+}
+
+/* Counts up to a figure like "+1,850", "94%" or "+250M" when scrolled into view. */
+function CountUp({ value, className = '' }: { value: string; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const match = value.match(/^([^\d]*)([\d,]+)(.*)$/)
+  const prefix = match?.[1] ?? ''
+  const target = match ? Number(match[2].replace(/,/g, '')) : 0
+  const suffix = match?.[3] ?? ''
+  const [current, setCurrent] = useState(target)
 
   useEffect(() => {
-    const items = document.querySelectorAll<HTMLElement>('[data-reveal]')
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-          observer.unobserve(entry.target)
+    const el = ref.current
+    if (!el || !match) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    setCurrent(0)
+    let raf = 0
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        io.disconnect()
+        const start = performance.now()
+        const duration = 1600
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - start) / duration)
+          const eased = 1 - Math.pow(1 - t, 4)
+          setCurrent(Math.round(target * eased))
+          if (t < 1) raf = requestAnimationFrame(tick)
         }
-      })
-    }, { threshold: 0.12, rootMargin: '0px 0px -48px' })
-
-    items.forEach((item) => observer.observe(item))
-    return () => observer.disconnect()
-  }, [])
+        raf = requestAnimationFrame(tick)
+      },
+      { threshold: 0.6 },
+    )
+    io.observe(el)
+    return () => {
+      io.disconnect()
+      cancelAnimationFrame(raf)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target])
 
   return (
-    <main dir="rtl" className="luxury-shell min-h-screen overflow-hidden bg-[#ffffff] text-[#0f172a]">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#0f172a]/10 bg-white/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-          <a href="#home" className="flex items-center gap-3" aria-label="ميثاق - الصفحة الرئيسية">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Gemini_Generated_Image_r5lzezr5lzezr5lz-PqZNRQHHlVtFXdykIEsy4wHu8mnlfF.jpg" alt="شعار ميثاق M Q" className="h-10 w-20 object-contain object-center" />
-          </a>
-          <nav className="hidden items-center gap-8 text-sm text-[#475569] md:flex" aria-label="التنقل الرئيسي">
-            <a className="transition hover:text-[#d3aa5c]" href="#about">عن ميثاق</a>
-            <a className="transition hover:text-[#d3aa5c]" href="#services">خدماتنا</a>
-            <a className="transition hover:text-[#d3aa5c]" href="#team">فريق المحامين</a>
-            <a className="transition hover:text-[#d3aa5c]" href="#contact">تواصل معنا</a>
-          </nav>
-          <div className="hidden items-center gap-2 lg:flex" aria-label="روابط التواصل الاجتماعي"><a href="https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على فيسبوك" className="inline-flex items-center gap-2 rounded-full border border-[#0f172a]/20 bg-[#0f172a] px-4 py-2.5 text-sm font-bold text-white transition-all duration-500 hover:-translate-y-0.5 hover:bg-[#c2a672] hover:text-[#0f172a]"><span className="text-base font-black">f</span><span>فيسبوك</span></a><a href="https://www.instagram.com/mithaq.law1" target="_blank" rel="noreferrer" aria-label="صفحة ميثاق على إنستغرام" className="inline-flex items-center gap-2 rounded-full border border-[#0f172a]/20 bg-[#0f172a] px-4 py-2.5 text-sm font-bold text-white transition-all duration-500 hover:-translate-y-0.5 hover:bg-[#c2a672] hover:text-[#0f172a]"><span className="text-xs font-black">ig</span><span>إنستغرام</span></a></div><a href="#contact" className="hidden rounded-full border border-[#cda454] px-5 py-2 text-sm font-semibold text-[#e0b766] transition hover:bg-[#cda454] hover:text-[#0f172a] sm:inline-flex">احجز استشارتك</a>
-          <button className="inline-flex rounded-lg p-2 text-[#d3aa5c] md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'} aria-expanded={menuOpen}>
-            {menuOpen ? <X /> : <Menu />}
-          </button>
+    <span ref={ref} dir="ltr" className={`tabular-nums ${className}`} aria-label={value}>
+      <span aria-hidden="true">
+        {prefix}
+        {current.toLocaleString('en-US')}
+        {suffix}
+      </span>
+    </span>
+  )
+}
+
+const pillLight =
+  'group inline-flex items-center justify-center gap-2 rounded-full bg-[#ececec] px-6 py-3 text-[0.95rem] font-medium text-ink transition-[background-color,transform] duration-300 hover:bg-white active:scale-[0.98]'
+const pillDark =
+  'group inline-flex items-center justify-center gap-2 rounded-full bg-ink-2 px-6 py-3 text-[0.95rem] font-medium text-white transition-[background-color,transform] duration-300 hover:bg-ink-3 active:scale-[0.98]'
+const fieldBase =
+  'w-full rounded-xl border bg-white px-4 py-3 text-[0.95rem] text-ink placeholder:text-ash transition-[border-color,box-shadow] duration-200 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-copper/15'
+
+export function MithaqSite() {
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeStep, setActiveStep] = useState(0)
+  const [activeService, setActiveService] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [showTopBanner, setShowTopBanner] = useState(true)
+
+  // Booking Form State
+  const [formSubmitted, setFormSubmitted] = useState(false)
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    serviceType: 'جنايات وجرائم اقتصادية',
+    consultationType: 'مكتبية في مقر ميثاق',
+    details: '',
+  })
+
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const successRef = useRef<HTMLHeadingElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Header surface changes once the hero is scrolled past
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 40)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Scroll reveal for [data-reveal] blocks and highlighted phrases
+  useEffect(() => {
+    const items = document.querySelectorAll<HTMLElement>('[data-reveal], .highlight')
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px' },
+    )
+    items.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+
+  // Close the mobile menu with Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMobileMenuOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mobileMenuOpen])
+
+  useEffect(() => {
+    if (formSubmitted) successRef.current?.focus()
+  }, [formSubmitted])
+
+  const updateField = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (formErrors[field as keyof FormErrors]) {
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const errors = validate(formData)
+    setFormErrors(errors)
+    const firstInvalid = (Object.keys(errors) as (keyof FormErrors)[])[0]
+    if (firstInvalid) {
+      formRef.current?.querySelector<HTMLElement>(`#field-${firstInvalid}`)?.focus()
+      return
+    }
+    setFormSubmitted(true)
+  }
+
+  const onTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
+    const last = processSteps.length - 1
+    let next: number | null = null
+    // RTL: left arrow moves forward
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = idx === last ? 0 : idx + 1
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = idx === 0 ? last : idx - 1
+    if (e.key === 'Home') next = 0
+    if (e.key === 'End') next = last
+    if (next === null) return
+    e.preventDefault()
+    setActiveStep(next)
+    tabRefs.current[next]?.focus()
+  }
+
+  const step = processSteps[activeStep]
+  const errorCount = Object.values(formErrors).filter(Boolean).length
+  const onHero = !scrolled && !mobileMenuOpen
+
+  return (
+    <div className="relative min-h-screen bg-paper text-ink">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
+      >
+        تخطَّ إلى المحتوى
+      </a>
+
+      {/* Announcement */}
+      {showTopBanner && (
+        <div className="relative z-50 bg-white text-[0.8rem] text-ink sm:text-sm">
+          <div className="mx-auto flex max-w-[88rem] items-center gap-3 px-5 py-2.5 lg:px-8">
+            <p className="flex flex-1 items-center justify-center gap-3">
+              <span>
+                حجز الاستشارات مفتوح الآن<span className="hidden sm:inline"> في مقر ميثاق بالقاهرة</span>
+              </span>
+              <a href="#contact" className="rounded-full bg-ink px-3.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-ink-3">
+                احجز موعداً
+              </a>
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowTopBanner(false)}
+              className="-me-2 grid size-8 shrink-0 place-items-center rounded-full text-stone transition-colors hover:bg-smoke hover:text-ink"
+              aria-label="إغلاق التنبيه"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
         </div>
-        {menuOpen && <nav className="flex flex-col gap-4 border-t border-white/10 bg-[#0b1a2e] px-5 py-5 text-right md:hidden" aria-label="قائمة الهاتف">
-          {['about', 'services', 'team', 'contact'].map((id, i) => <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)} className="text-[#e9e1d6]">{['عن ميثاق', 'خدماتنا', 'فريق المحامين', 'تواصل معنا'][i]}</a>)}
-        </nav>}
+      )}
+
+      {/* Header — floats over the hero, turns solid on scroll */}
+      <header
+        className={`sticky top-0 z-40 -mb-[4.75rem] transition-[background-color,color,box-shadow] duration-500 ${
+          onHero ? 'bg-transparent text-white' : 'bg-white/90 text-ink shadow-[0_1px_0_rgba(10,10,10,0.06)] backdrop-blur-xl'
+        }`}
+      >
+        <div className="mx-auto flex h-[4.75rem] max-w-[88rem] items-center justify-between gap-6 px-5 lg:px-8">
+          <a href="#home" aria-label="ميثاق للمحاماة — الصفحة الرئيسية">
+            <Wordmark tone={onHero ? 'light' : 'dark'} />
+          </a>
+
+          <nav className="hidden items-center gap-8 text-[0.9rem] lg:flex" aria-label="التنقل الرئيسي">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className={`transition-colors ${onHero ? 'text-white/75 hover:text-white' : 'text-stone hover:text-ink'}`}
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <a href="#contact" className={cn(onHero ? pillLight : pillDark, 'hidden px-5 py-2.5 text-sm sm:inline-flex')}>
+              احجز استشارة مجانية
+            </a>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((o) => !o)}
+              className={`grid size-11 place-items-center rounded-full transition-colors lg:hidden ${onHero ? 'hover:bg-white/10' : 'hover:bg-smoke'}`}
+              aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav"
+            >
+              {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+            </button>
+          </div>
+        </div>
+
+        <div id="mobile-nav" className="collapse-grid bg-white lg:hidden" data-open={mobileMenuOpen} inert={!mobileMenuOpen}>
+          <div>
+            <nav className="mx-auto flex max-w-[88rem] flex-col px-5 pb-6" aria-label="قائمة الهاتف">
+              {navLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between border-b border-sand py-4 text-lg text-ink"
+                >
+                  {l.label}
+                  <ArrowUpLeft className="size-4 text-stone" />
+                </a>
+              ))}
+              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className={cn(pillDark, 'mt-6 py-3.5')}>
+                احجز استشارة مجانية
+              </a>
+            </nav>
+          </div>
+        </div>
       </header>
 
-      <section id="home" className="relative flex min-h-[720px] items-center bg-[#ffffff] pt-28">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(194,166,114,0.18),transparent_26%),linear-gradient(135deg,#fff_0%,#f8fafc_55%,#f4f0e8_100%)]" /><div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-l from-transparent via-[#d3aa5c]/30 to-transparent" />
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-          <div data-reveal className="reveal is-visible relative z-10 max-w-2xl">
-            <p className="mb-5 flex items-center gap-3 text-sm font-semibold tracking-[0.25em] text-[#d3aa5c]"><span className="h-px w-10 bg-[#d3aa5c]" /> MITHAQ LAW FIRM</p>
-            <p className="mb-4 text-sm font-semibold text-[#d3aa5c]">ثقة نادرة.. وأثر يدوم</p>
-            <h1 className="font-bold text-5xl leading-[1.18] text-[#0f172a] sm:text-6xl lg:text-7xl">ثقة نادرة..<br /><span className="text-[#d3aa5c]">وأثر يدوم</span></h1>
-            <p className="mt-7 max-w-xl text-lg leading-9 text-[#64748b]">في ميثاق، نمنح كل قضية عناية استثنائية، وكل عميل حضوراً قانونياً يليق بثقته وخصوصية موقفه.</p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <a href="#contact" className="inline-flex items-center gap-3 rounded-full bg-[#d3aa5c] px-7 py-3.5 font-bold text-[#0f172a] transition hover:bg-[#e2bf7b]">تحدث مع محامينا <ArrowLeft /></a>
-              <a href="#services" className="inline-flex items-center gap-2 rounded-full border border-[#0f172a]/20 px-6 py-3.5 font-semibold text-[#0f172a] transition hover:border-[#d3aa5c] hover:text-[#d3aa5c]">اكتشف خدماتنا <ArrowUpLeft /></a>
+      <main id="main">
+        {/* HERO */}
+        <section id="home" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-ink text-white">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <div className="settle absolute inset-0">
+              <Image
+                src="/images/lawyer-1.png"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-[25%_22%] brightness-[0.8] saturate-[0.6] lg:object-[15%_18%]"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-l from-ink via-ink/80 to-ink/10" />
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-ink to-transparent" />
+          </div>
+
+          <div className="mx-auto flex w-full max-w-[88rem] flex-1 flex-col justify-center px-5 pt-32 pb-12 lg:px-8">
+            <div className="max-w-3xl">
+              <p className="rise-in flex items-center gap-3 text-sm text-white/85" style={{ '--d': '100ms' } as React.CSSProperties}>
+                <ArrowLeft className="size-4" aria-hidden="true" />
+                حين تكون النتيجة هي الفيصل.
+              </p>
+              <h1
+                id="hero-title"
+                className="rise-in mt-6 text-[clamp(2.6rem,7vw,5.5rem)] leading-[1.12] font-semibold tracking-tight"
+                style={{ '--d': '220ms' } as React.CSSProperties}
+              >
+                ثقة نادرة.. وأثر قانوني يدوم.
+              </h1>
+              <ul className="rise-in mt-8 space-y-2.5 text-base text-white/90 sm:text-lg" style={{ '--d': '360ms' } as React.CSSProperties}>
+                {['محامون كبار مقيدون بالنقض في كل قضية', 'سجل مثبت أمام المحاكم في القضايا المعقدة', 'أتعاب واضحة في عقد مسبق، بلا مفاجآت'].map((b) => (
+                  <li key={b} className="flex items-center gap-3">
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-white" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              <div className="rise-in mt-10 flex flex-wrap gap-3" style={{ '--d': '480ms' } as React.CSSProperties}>
+                <a href="#contact" className={pillLight}>
+                  احجز استشارة
+                </a>
+                <a href="#services" className={cn(pillDark, 'bg-white/10 backdrop-blur hover:bg-white/20')}>
+                  تعرّف على خدماتنا
+                </a>
+              </div>
             </div>
           </div>
-          <div className="relative flex min-h-[380px] items-center justify-center lg:min-h-[520px]">
-            <div className="absolute size-[320px] rounded-full border border-[#d3aa5c]/35 shadow-[0_0_80px_rgba(211,170,92,0.12)] sm:size-[450px]" /><div className="absolute size-[275px] rounded-full border border-dashed border-[#d3aa5c]/25 sm:size-[395px]" />
-            <div className="absolute size-[255px] rounded-full bg-[#d3aa5c]/10 blur-3xl sm:size-[370px]" />
-            <img src={iconUrl} alt="رمز محامٍ أمام منصة القضاء" className="relative z-10 max-h-[510px] w-auto object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.35)]" />
+
+          <div className="rise-in mx-auto flex w-full max-w-[88rem] items-center justify-between px-5 pb-8 text-sm text-white/80 lg:px-8" style={{ '--d': '700ms' } as React.CSSProperties}>
+            <p className="flex items-center gap-2.5">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-copper-glow" />
+              من هنا تبدأ النتائج الجيدة.
+            </p>
+            <a href="#about" className="hidden flex-col items-center gap-1 transition-colors hover:text-white sm:flex">
+              مرّر للاستكشاف
+              <ChevronDown className="nudge size-4" aria-hidden="true" />
+            </a>
+          </div>
+        </section>
+
+        {/* STATS STRIP */}
+        <section aria-label="ميثاق بالأرقام" className="bg-ink text-white">
+          <div className="mx-auto grid max-w-[88rem] grid-cols-1 items-center gap-10 border-t border-white/10 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:px-8">
+            <div className="flex items-center gap-5">
+              <p className="text-sm font-semibold">
+                يثق بنا <span className="font-normal text-white/60">موكلونا</span>
+              </p>
+              <div className="flex -space-x-2.5 space-x-reverse" aria-hidden="true">
+                {['ع', 'ط', 'س', 'م'].map((c, i) => (
+                  <span
+                    key={c}
+                    className="grid size-9 place-items-center rounded-full border-2 border-ink text-xs font-semibold text-ink"
+                    style={{ background: ['#e8c9a0', '#d9b48a', '#c8a07a', '#b48c6a'][i] }}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+              <div>
+                <CountUp value="+1,200" className="block text-xl font-semibold" />
+                <span className="text-xs text-white/60">موكل في مصر والعالم العربي</span>
+              </div>
+            </div>
+            <dl className="grid grid-cols-3">
+              {[
+                { v: '+1,850', l: 'قضية محسومة' },
+                { v: '18', l: 'عاماً من الخبرة' },
+                { v: '+250M', l: 'جنيه حقوق مستردة' },
+              ].map((s, i) => (
+                <div key={s.l} className={`text-left ${i > 0 ? 'border-r border-white/15' : ''} px-3 sm:px-6`}>
+                  <dt className="sr-only">{s.l}</dt>
+                  <dd className="text-[clamp(1.75rem,5vw,3.75rem)] leading-none font-medium tracking-tight">
+                    <CountUp value={s.v} />
+                  </dd>
+                  <dd className="mt-3 text-xs text-white/60 sm:text-sm">{s.l}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* ABOUT */}
+        <section id="about" aria-labelledby="about-title" className="py-24 sm:py-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel>عن ميثاق</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="about-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  محامون أصحاب خبرة ومصداقية، للحظات الأكثر حسماً في حياتك وعملك.
+                </h2>
+                <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
+                  نجمع بين عمق التقاليد القضائية العريقة وأحدث أساليب التحليل القانوني. نضع مصلحة الموكل فوق كل اعتبار، ونبني كل ملف قضائي كأنه قضيتنا الوحيدة — لرجال الأعمال والشركات والعائلات في أصعب قراراتهم.
+                </p>
+                <a href="#contact" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium underline decoration-sand underline-offset-[6px] transition-colors hover:decoration-ink">
+                  ناقش قضيتك معنا
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-20 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal className="group relative isolate flex min-h-[26rem] flex-col justify-end overflow-hidden rounded-2xl bg-ink p-6 text-white">
+                <Image
+                  src="/images/folder.png"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 28vw, 90vw"
+                  className="-z-10 object-cover object-[70%_20%] opacity-55 transition-transform duration-700 ease-out-soft group-hover:scale-105"
+                />
+                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/10" />
+                <p className="text-xl font-semibold leading-snug">+1,200 موكل خدمناهم</p>
+                <p className="mt-2 text-sm text-white/70">أفراد وشركات في مصر ومختلف الدول العربية.</p>
+                <a href="#testimonials" className={cn(pillLight, 'mt-6 w-full')}>
+                  اقرأ آراء الموكلين
+                </a>
+              </div>
+
+              <div className="flex min-w-0 flex-col justify-between gap-12">
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
+                  {[
+                    { v: '94%', l: 'نسبة كسب القضايا لصالح موكلينا' },
+                    { v: '+120', l: 'تدقيق امتثال واستشارة سنوياً' },
+                    { v: '+250M', l: 'جنيه أموال وحقوق تمت حمايتها' },
+                    { v: '+450', l: 'عقد تجاري واستثماري صيغ بنجاح' },
+                  ].map((s, i) => (
+                    <div key={s.l} data-reveal style={{ '--d': `${i * 90}ms` } as React.CSSProperties}>
+                      <dt className="sr-only">{s.l}</dt>
+                      <dd className="text-left text-[clamp(2.25rem,4vw,3.5rem)] leading-none font-medium tracking-tight">
+                        <CountUp value={s.v} />
+                      </dd>
+                      <dd className="mt-3 text-sm leading-6 text-stone">{s.l}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <div data-reveal className="border-t border-sand pt-6">
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+                    <span className="flex items-center gap-2">
+                      <span className="font-semibold" dir="ltr">4.9</span>
+                      <span className="flex text-copper" role="img" aria-label="تقييم 4.9 من 5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="size-3.5 fill-current" aria-hidden="true" />
+                        ))}
+                      </span>
+                      <span className="text-stone">من 350+ مراجعة</span>
+                    </span>
+                    <span className="flex items-center gap-2 text-ink-3">
+                      <ShieldCheck className="size-4 text-copper-ink" aria-hidden="true" /> نقابة المحامين المصرية
+                    </span>
+                    <span className="flex items-center gap-2 text-ink-3">
+                      <Award className="size-4 text-copper-ink" aria-hidden="true" /> اتحاد المحامين العرب
+                    </span>
+                  </div>
+                  <div className="ticker-wrap ticker-mask mt-6 overflow-hidden" dir="ltr">
+                    <div className="ticker gap-10" style={{ '--ticker-duration': '50s' } as React.CSSProperties}>
+                      {[...testimonials, ...testimonials].map((t, i) => (
+                        <p key={i} dir="rtl" className="flex max-w-[24rem] shrink-0 items-center gap-3 text-sm text-stone" aria-hidden={i >= testimonials.length}>
+                          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-smoke text-xs font-semibold text-ink">
+                            {t.author.replace(/^[^ ]+ /, '').charAt(0)}
+                          </span>
+                          <span className="truncate">“{t.quote}”</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SERVICES */}
+        <section id="services" aria-labelledby="services-title" className="pb-24 sm:pb-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel>خدماتنا</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="services-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  <span className="highlight">خدمات قانونية موثوقة</span> في ستة مجالات أساسية.
+                </h2>
+                <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
+                  كل مجال يقوده محامٍ كبير — من أول استشارة حتى صدور الحكم النهائي وتنفيذه.
+                </p>
+              </div>
+            </div>
+
+            {/* Desktop: expanding panels */}
+            <div data-reveal className="mt-16 hidden h-[34rem] gap-px overflow-hidden rounded-2xl bg-ink-3 lg:flex">
+              {practiceAreas.map((area, i) => {
+                const Icon = area.icon
+                const active = activeService === i
+                return (
+                  <div
+                    key={area.id}
+                    className={`relative min-w-0 overflow-hidden bg-ink text-white transition-[flex-grow] duration-700 ease-out-soft ${active ? 'grow-[5]' : 'grow'} basis-0`}
+                    onMouseEnter={() => setActiveService(i)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveService(i)}
+                      onFocus={() => setActiveService(i)}
+                      aria-expanded={active}
+                      aria-controls={`service-${area.id}`}
+                      className={`absolute inset-0 flex flex-col items-center gap-8 pt-10 text-center transition-opacity duration-300 ${active ? 'pointer-events-none opacity-0' : 'opacity-100 hover:bg-white/[0.03]'}`}
+                    >
+                      <span className="text-2xl font-light text-white/80" dir="ltr">{romanNumerals[i]}</span>
+                      <span className="vertical-label text-sm tracking-wide text-white/75">{area.title}</span>
+                    </button>
+
+                    <div
+                      id={`service-${area.id}`}
+                      className={`flex h-full w-[min(44rem,60vw)] flex-col justify-between p-10 transition-opacity duration-500 ${active ? 'opacity-100 delay-200' : 'pointer-events-none opacity-0'}`}
+                      inert={!active}
+                    >
+                      <div className="flex items-start justify-between">
+                        <span className="text-sm text-white/50">المجال {toArabicDigits(i + 1)}</span>
+                        <span className="grid size-11 place-items-center rounded-full bg-white/10">
+                          <Icon className="size-5 text-copper-glow" aria-hidden="true" />
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-copper-glow">{area.tag}</p>
+                        <h3 className="mt-3 text-4xl leading-tight font-medium">{area.title}</h3>
+                        <p className="mt-5 max-w-lg text-base leading-[1.9] text-white/70">{area.description}</p>
+                        <ul className="mt-6 grid gap-2.5 text-sm text-white/85">
+                          {area.features.map((f) => (
+                            <li key={f} className="flex items-center gap-2.5">
+                              <Check className="size-4 shrink-0 text-copper-glow" aria-hidden="true" />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <a
+                          href="#contact"
+                          onClick={() => updateField('serviceType', serviceOptions[i])}
+                          className={cn(pillLight, 'mt-8 px-5 py-2.5 text-sm')}
+                        >
+                          اطلب استشارة في هذا المجال
+                          <ArrowUpLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="mt-4 hidden text-xs text-stone lg:block" aria-hidden="true">
+              مرّر المؤشر للمعاينة، أو اضغط للاختيار.
+            </p>
+
+            {/* Mobile & tablet: stacked accordion */}
+            <div className="mt-12 overflow-hidden rounded-2xl bg-ink text-white lg:hidden">
+              {practiceAreas.map((area, i) => {
+                const active = activeService === i
+                return (
+                  <div key={area.id} className="border-b border-white/10 last:border-b-0">
+                    <h3>
+                      <button
+                        type="button"
+                        onClick={() => setActiveService(active ? -1 : i)}
+                        aria-expanded={active}
+                        aria-controls={`service-m-${area.id}`}
+                        className="flex w-full items-center gap-4 px-5 py-5 text-right"
+                      >
+                        <span className="w-8 shrink-0 text-sm font-light text-white/50" dir="ltr">{romanNumerals[i]}</span>
+                        <span className="flex-1 text-base font-medium">{area.title}</span>
+                        <ChevronDown className={`size-5 shrink-0 text-white/60 transition-transform duration-300 ${active ? 'rotate-180' : ''}`} aria-hidden="true" />
+                      </button>
+                    </h3>
+                    <div id={`service-m-${area.id}`} className="collapse-grid" data-open={active}>
+                      <div inert={!active}>
+                        <div className="px-5 pb-6 ps-17">
+                          <p className="text-sm text-copper-glow">{area.tag}</p>
+                          <p className="mt-2 text-[0.95rem] leading-[1.9] text-white/70">{area.description}</p>
+                          <ul className="mt-4 space-y-2 text-sm text-white/85">
+                            {area.features.map((f) => (
+                              <li key={f} className="flex items-center gap-2.5">
+                                <Check className="size-4 shrink-0 text-copper-glow" aria-hidden="true" />
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
+                          <a
+                            href="#contact"
+                            onClick={() => updateField('serviceType', serviceOptions[i])}
+                            className={cn(pillLight, 'mt-5 px-5 py-2.5 text-sm')}
+                          >
+                            اطلب استشارة
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* PROCESS */}
+        <section id="process" aria-labelledby="process-title" className="bg-smoke py-24 sm:py-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel>مسار القضية</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="process-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  خمس خطوات واضحة، من أول مكالمة حتى الحكم النهائي.
+                </h2>
+                <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
+                  نفس الفريق معك من البداية للنهاية، وتعرف دائماً أين تقف قضيتك وما الذي سيحدث بعدها.
+                </p>
+              </div>
+            </div>
+
+            <div data-reveal className="mt-16 overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
+              <div
+                role="tablist"
+                aria-label="مراحل القضية"
+                className="relative grid min-w-0 grid-flow-col auto-cols-[minmax(11rem,1fr)] overflow-x-auto border-b border-sand"
+              >
+                {processSteps.map((s, idx) => {
+                  const selected = activeStep === idx
+                  return (
+                    <button
+                      key={s.step}
+                      ref={(el) => {
+                        tabRefs.current[idx] = el
+                      }}
+                      type="button"
+                      role="tab"
+                      id={`step-tab-${idx}`}
+                      aria-selected={selected}
+                      aria-controls="step-panel"
+                      tabIndex={selected ? 0 : -1}
+                      onClick={() => setActiveStep(idx)}
+                      onKeyDown={(e) => onTabKeyDown(e, idx)}
+                      className={`relative px-5 py-5 text-right transition-colors duration-300 ${selected ? 'text-ink' : 'text-ash hover:text-ink-3'}`}
+                    >
+                      <span className="block text-sm" dir="ltr" style={{ textAlign: 'right' }}>
+                        {s.step}
+                      </span>
+                      <span className="mt-1 block text-[0.95rem] font-medium">{s.title}</span>
+                      <span
+                        aria-hidden="true"
+                        className={`absolute inset-x-0 bottom-0 h-0.5 origin-right bg-copper transition-transform duration-500 ease-out-soft ${selected ? 'scale-x-100' : 'scale-x-0'}`}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div
+                id="step-panel"
+                role="tabpanel"
+                aria-labelledby={`step-tab-${activeStep}`}
+                tabIndex={0}
+                className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"
+              >
+                <div key={activeStep} className="fade-swap p-7 sm:p-12">
+                  <p className="text-sm text-copper-ink" dir="ltr" lang="en" style={{ textAlign: 'right' }}>
+                    {step.subtitle}
+                  </p>
+                  <h3 className="mt-3 text-3xl leading-tight font-medium sm:text-4xl">{step.title}</h3>
+                  <p className="mt-5 max-w-xl text-base leading-[1.95] text-stone sm:text-lg">{step.summary}</p>
+                  <ul className="mt-8 space-y-3">
+                    {step.deliverables.map((d) => (
+                      <li key={d} className="flex items-start gap-3 text-[0.95rem] leading-7">
+                        <Check className="mt-1.5 size-4 shrink-0 text-copper-ink" aria-hidden="true" />
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                  <dl className="mt-10 grid gap-6 border-t border-sand pt-6 text-sm sm:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <Clock className="mt-0.5 size-4 shrink-0 text-stone" aria-hidden="true" />
+                      <div>
+                        <dt className="text-stone">المدة التقريبية</dt>
+                        <dd className="mt-1 font-medium">{step.duration}</dd>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck className="mt-0.5 size-4 shrink-0 text-stone" aria-hidden="true" />
+                      <div>
+                        <dt className="text-stone">التزامنا</dt>
+                        <dd className="mt-1 font-medium">{step.guarantee}</dd>
+                      </div>
+                    </div>
+                  </dl>
+                </div>
+                <div className="relative hidden min-h-[24rem] bg-ink lg:block">
+                  <Image
+                    key={activeStep}
+                    src={activeStep % 2 === 0 ? '/images/case-doc.png' : '/images/folder.png'}
+                    alt=""
+                    fill
+                    sizes="35vw"
+                    className="fade-swap object-cover object-top"
+                  />
+                  <div className="absolute inset-x-5 bottom-5 flex items-center justify-between rounded-xl bg-ink/80 px-4 py-3 text-sm text-white backdrop-blur">
+                    <span>ملف معتمد — ميثاق</span>
+                    <span className="text-white/70">
+                      الخطوة {toArabicDigits(activeStep + 1)} من {toArabicDigits(processSteps.length)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* TEAM */}
+        <section id="team" aria-labelledby="team-title" className="py-24 sm:py-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel>فريق المحامين</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="team-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  الأسماء التي تقف خلف كل نجاح قضائي.
+                </h2>
+                <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
+                  كل قضية يقودها محامٍ كبير — من أول مكالمة حتى صدور الحكم.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mr-[calc((100%-2rem)*1/3.3+2rem)]">
+              {lawyers.map((l, i) => (
+                <article
+                  key={l.name}
+                  data-reveal
+                  style={{ '--d': `${i * 120}ms` } as React.CSSProperties}
+                  className="group relative isolate aspect-[4/5] overflow-hidden rounded-2xl bg-ink text-white"
+                >
+                  <Image
+                    src={l.photo}
+                    alt={l.alt}
+                    fill
+                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                    className="-z-10 object-cover object-[30%_20%] transition-transform duration-700 ease-out-soft group-hover:scale-[1.04]"
+                  />
+                  <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <h3 className="text-2xl font-semibold">{l.name}</h3>
+                    <p className="mt-1 text-xs tracking-wide text-white/70">{l.role} — {l.credential}</p>
+                    <div className="collapse-grid group-hover:[grid-template-rows:1fr] group-focus-within:[grid-template-rows:1fr]">
+                      <div>
+                        <p className="pt-3 text-sm leading-7 text-white/80">{l.bio}</p>
+                        <a href="#contact" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-copper-glow hover:text-white">
+                          اطلب استشارة خاصة
+                          <ArrowUpLeft className="size-4" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* TESTIMONIALS */}
+        <section id="testimonials" aria-labelledby="testimonials-title" className="overflow-hidden bg-ink py-24 text-white sm:py-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel tone="light">آراء الموكلين</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="testimonials-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  ماذا يقول موكلونا.
+                </h2>
+                <p className="mt-7 max-w-2xl text-base leading-[1.95] text-white/60 sm:text-lg">
+                  معظم عملنا يبقى طي الكتمان. بإذن أصحابها، هذه بعض كلمات من وثقوا بنا.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 space-y-5">
+            {[false, true].map((reverse) => (
+              <div key={String(reverse)} className="ticker-wrap ticker-mask overflow-x-auto [scrollbar-width:none] motion-safe:overflow-hidden" dir="ltr">
+                <ul className="ticker gap-5 px-2.5" data-reverse={reverse} style={{ '--ticker-duration': reverse ? '75s' : '65s' } as React.CSSProperties}>
+                  {[...(reverse ? [...testimonials].reverse() : testimonials), ...(reverse ? [...testimonials].reverse() : testimonials)].map((t, i) => (
+                    <li
+                      key={i}
+                      dir="rtl"
+                      aria-hidden={i >= testimonials.length || reverse}
+                      className="flex w-[22rem] shrink-0 flex-col justify-between rounded-2xl bg-ink-2 p-6 ring-1 ring-white/[0.06] transition-colors duration-300 hover:bg-ink-3 sm:w-[26rem]"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="flex text-copper-glow" aria-hidden="true">
+                            {[...Array(t.rating)].map((_, s) => (
+                              <Star key={s} className="size-3.5 fill-current" />
+                            ))}
+                          </span>
+                          <span className="text-xs text-white/50">{t.tag}</span>
+                        </div>
+                        <blockquote className="mt-5 text-[0.95rem] leading-[1.9] text-white/85">“{t.quote}”</blockquote>
+                      </div>
+                      <p className="mt-6 border-t border-white/10 pt-4 text-sm">
+                        <span className="font-semibold">{t.author}</span>
+                        <span className="mt-0.5 block text-xs text-white/50">{t.role}</span>
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" aria-labelledby="faq-title" className="py-24 sm:py-32">
+          <div className="mx-auto grid max-w-[88rem] grid-cols-1 gap-12 px-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-20 lg:px-8">
+            <div data-reveal className="lg:sticky lg:top-28 lg:self-start">
+              <SectionLabel>الأسئلة الشائعة</SectionLabel>
+              <h2 id="faq-title" className="mt-6 text-[clamp(2rem,4.6vw,3.5rem)] leading-[1.2] font-medium tracking-tight">
+                إجابات واضحة لأسئلتك القانونية.
+              </h2>
+              <p className="mt-6 max-w-md text-base leading-[1.95] text-stone">
+                نعرف أن الأسئلة القانونية قد تكون مربكة، خاصة حين لا تعرف من أين تبدأ. هذه أكثر ما يسألنا عنه الموكلون.
+              </p>
+              <div className="mt-10 border-t border-sand pt-6 text-sm">
+                <p className="text-stone">لم تجد سؤالك؟</p>
+                <a href="tel:+201001234567" className="mt-1 inline-flex items-center gap-1.5 font-medium transition-colors hover:text-copper-ink">
+                  تحدث مع محامٍ مباشرة
+                  <ArrowUpLeft className="size-4 text-copper" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {faqs.map((faq, fIdx) => {
+                const isOpen = openFaq === fIdx
+                return (
+                  <div
+                    key={faq.q}
+                    data-reveal
+                    style={{ '--d': `${fIdx * 70}ms` } as React.CSSProperties}
+                    className={`rounded-2xl transition-colors duration-300 ${isOpen ? 'bg-smoke' : 'bg-smoke/60 hover:bg-smoke'}`}
+                  >
+                    <h3>
+                      <button
+                        type="button"
+                        id={`faq-q-${fIdx}`}
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-a-${fIdx}`}
+                        onClick={() => setOpenFaq(isOpen ? null : fIdx)}
+                        className="flex w-full items-center justify-between gap-6 px-6 py-5 text-right text-base font-medium sm:text-[1.05rem]"
+                      >
+                        {faq.q}
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={`size-5 shrink-0 text-stone transition-transform duration-300 ease-out-soft ${isOpen ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                    </h3>
+                    <div id={`faq-a-${fIdx}`} role="region" aria-labelledby={`faq-q-${fIdx}`} className="collapse-grid" data-open={isOpen}>
+                      <div inert={!isOpen}>
+                        <p className="px-6 pb-6 text-[0.95rem] leading-[1.95] text-stone">{faq.a}</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* CONTACT */}
+        <section id="contact" aria-labelledby="contact-title" className="pb-24 sm:pb-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+              <div data-reveal className="rounded-2xl border border-sand p-6 sm:p-10" aria-live="polite">
+                {formSubmitted ? (
+                  <div className="fade-swap flex min-h-[30rem] flex-col items-center justify-center py-8 text-center">
+                    <span className="grid size-16 place-items-center rounded-full bg-ink text-white">
+                      <Check className="size-7" strokeWidth={2.5} aria-hidden="true" />
+                    </span>
+                    <h3 ref={successRef} tabIndex={-1} className="mt-6 text-2xl font-semibold focus:outline-none">
+                      وصلنا طلب الاستشارة
+                    </h3>
+                    <p className="mt-3 max-w-sm text-[0.95rem] leading-[1.9] text-stone">
+                      شكراً {formData.name.trim().split(' ')[0]}. سيتواصل معك المستشار المختص على{' '}
+                      <span dir="ltr" className="font-medium text-ink">{formData.phone}</span> خلال أقل من ساعتين في أوقات العمل.
+                    </p>
+                    <button type="button" onClick={() => setFormSubmitted(false)} className={cn(pillDark, 'mt-8 bg-smoke text-ink hover:bg-sand')}>
+                      إرسال طلب آخر
+                    </button>
+                  </div>
+                ) : (
+                  <form ref={formRef} onSubmit={handleFormSubmit} noValidate className="space-y-5">
+                    <div>
+                      <SectionLabel>تواصل معنا</SectionLabel>
+                      <h2 id="contact-title" className="mt-5 text-3xl leading-tight font-medium tracking-tight sm:text-4xl">
+                        خطوتك الأولى نحو حماية حقوقك.
+                      </h2>
+                      <p className="mt-3 text-sm text-stone">الاستشارة الأولى مجانية. الحقول المعلَّمة * مطلوبة.</p>
+                    </div>
+
+                    {errorCount > 0 && (
+                      <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#c8102e]/[0.06] px-4 py-3 text-sm text-[#a10d25]">
+                        <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                        {errorCount === 1 ? 'حقل واحد يحتاج إلى تصحيح قبل الإرسال.' : `${toArabicDigits(errorCount)} حقول تحتاج إلى تصحيح قبل الإرسال.`}
+                      </p>
+                    )}
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <Field id="field-name" label="الاسم بالكامل *" error={formErrors.name}>
+                        <input
+                          id="field-name"
+                          type="text"
+                          autoComplete="name"
+                          value={formData.name}
+                          onChange={(e) => updateField('name', e.target.value)}
+                          placeholder="مثال: محمد أحمد"
+                          aria-invalid={!!formErrors.name}
+                          aria-describedby={formErrors.name ? 'field-name-error' : undefined}
+                          className={`${fieldBase} ${formErrors.name ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
+                        />
+                      </Field>
+                      <Field id="field-phone" label="رقم الهاتف / واتساب *" error={formErrors.phone}>
+                        <input
+                          id="field-phone"
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          dir="ltr"
+                          value={formData.phone}
+                          onChange={(e) => updateField('phone', e.target.value)}
+                          placeholder="010XXXXXXXX"
+                          aria-invalid={!!formErrors.phone}
+                          aria-describedby={formErrors.phone ? 'field-phone-error' : undefined}
+                          className={`${fieldBase} text-right ${formErrors.phone ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <Field id="field-service" label="مجال القضية">
+                        <select
+                          id="field-service"
+                          value={formData.serviceType}
+                          onChange={(e) => updateField('serviceType', e.target.value)}
+                          className={`${fieldBase} select-arrow border-sand hover:border-ash focus:border-copper`}
+                        >
+                          {serviceOptions.map((o) => (
+                            <option key={o}>{o}</option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field id="field-consultation" label="طريقة الاستشارة">
+                        <select
+                          id="field-consultation"
+                          value={formData.consultationType}
+                          onChange={(e) => updateField('consultationType', e.target.value)}
+                          className={`${fieldBase} select-arrow border-sand hover:border-ash focus:border-copper`}
+                        >
+                          {consultationOptions.map((o) => (
+                            <option key={o}>{o}</option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
+
+                    <Field id="field-details" label="ملخص القضية أو الاستفسار *" error={formErrors.details} hint={`${toArabicDigits(formData.details.length)} حرف`}>
+                      <textarea
+                        id="field-details"
+                        rows={5}
+                        value={formData.details}
+                        onChange={(e) => updateField('details', e.target.value)}
+                        placeholder="اذكر بإيجاز طبيعة الموضوع ليتسنى تحويله للمستشار المختص."
+                        aria-invalid={!!formErrors.details}
+                        aria-describedby={formErrors.details ? 'field-details-error' : undefined}
+                        className={`${fieldBase} resize-y leading-7 ${formErrors.details ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
+                      />
+                    </Field>
+
+                    <div className="flex flex-col-reverse items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="flex items-center gap-2 text-xs text-stone">
+                        <ShieldCheck className="size-4 shrink-0 text-copper-ink" aria-hidden="true" />
+                        كل ما ترسله يخضع للسرية المهنية المطلقة.
+                      </p>
+                      <button type="submit" className={cn(pillDark, 'px-7 py-3.5')}>
+                        إرسال الطلب
+                        <ArrowUpLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+
+              <div data-reveal style={{ '--d': '120ms' } as React.CSSProperties} className="relative isolate flex min-h-[26rem] flex-col justify-between overflow-hidden rounded-2xl bg-ink p-6 text-white sm:p-8">
+                <Image src="/images/folder.png" alt="" fill sizes="(min-width: 1024px) 35vw, 90vw" className="-z-10 object-cover object-[10%_30%] opacity-30" />
+                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/60 to-ink" />
+                <div>
+                  <p className="text-sm text-white/60">تواصل مباشر</p>
+                  <ul className="mt-6 space-y-5">
+                    <li>
+                      <a href="tel:+201001234567" className="group flex items-center gap-3">
+                        <Phone className="size-5 text-copper-glow" aria-hidden="true" />
+                        <span className="text-lg font-medium transition-colors group-hover:text-copper-glow" dir="ltr">+20 100 123 4567</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://wa.me/201001234567" target="_blank" rel="noreferrer" className="group flex items-center gap-3">
+                        <WhatsAppGlyph className="size-5 text-copper-glow" />
+                        <span className="transition-colors group-hover:text-copper-glow">واتساب — متاح 24/7 للحالات الطارئة<span className="sr-only"> (تفتح في نافذة جديدة)</span></span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="mailto:info@mithaq-law.com" className="group flex items-center gap-3">
+                        <Mail className="size-5 text-copper-glow" aria-hidden="true" />
+                        <span className="transition-colors group-hover:text-copper-glow" dir="ltr">info@mithaq-law.com</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-10 flex items-center justify-between border-t border-white/15 pt-5 text-sm">
+                  <span className="text-white/60">المقر الرئيسي</span>
+                  <span className="flex items-center gap-2">
+                    <MapPin className="size-4 text-copper-glow" aria-hidden="true" /> القاهرة، مصر
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-ink text-white">
+        <div className="mx-auto max-w-[88rem] px-5 pt-20 pb-10 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 border-b border-white/10 pb-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+            <div>
+              <Wordmark tone="light" />
+              <p className="mt-5 max-w-xs text-sm leading-7 text-white/60">
+                ثقة نادرة.. وأثر يدوم. مكتب مصري للمحاماة والاستشارات القانونية والتحكيم التجاري.
+              </p>
+            </div>
+            <nav aria-label="روابط المكتب">
+              <h2 className="text-xs tracking-wide text-white/40">المكتب</h2>
+              <ul className="mt-5 space-y-3 text-sm">
+                {navLinks.map((l) => (
+                  <li key={l.href}>
+                    <a href={l.href} className="text-white/80 transition-colors hover:text-white">{l.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div>
+              <h2 className="text-xs tracking-wide text-white/40">المقر</h2>
+              <p className="mt-5 text-sm font-medium">القاهرة</p>
+              <p className="mt-1 text-sm leading-7 text-white/60">جمهورية مصر العربية</p>
+            </div>
+            <div>
+              <h2 className="text-xs tracking-wide text-white/40">تواصل</h2>
+              <ul className="mt-5 space-y-3 text-sm text-white/80">
+                <li>
+                  <a href="mailto:info@mithaq-law.com" className="transition-colors hover:text-white" dir="ltr">info@mithaq-law.com</a>
+                </li>
+                <li>
+                  <a href="tel:+201001234567" className="transition-colors hover:text-white" dir="ltr">+20 100 123 4567</a>
+                </li>
+              </ul>
+              <ul className="mt-6 flex items-center gap-2" aria-label="حسابات ميثاق">
+                {[
+                  { href: 'https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr', label: 'فيسبوك', Icon: FacebookGlyph },
+                  { href: 'https://www.instagram.com/mithaq.law1', label: 'إنستغرام', Icon: InstagramGlyph },
+                  { href: 'https://wa.me/201001234567', label: 'واتساب', Icon: WhatsAppGlyph },
+                ].map(({ href, label, Icon }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`${label} (تفتح في نافذة جديدة)`}
+                      className="grid size-10 place-items-center rounded-full bg-white/[0.06] text-white/80 transition-colors duration-300 hover:bg-white hover:text-ink"
+                    >
+                      <Icon className="size-[18px]" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 pt-8 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} ميثاق للمحاماة والاستشارات القانونية.</p>
+            <p className="flex items-center gap-2">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-copper" />
+              مقيدون بنقابة المحامين المصرية
+            </p>
           </div>
         </div>
-      </section>
+      </footer>
+    </div>
+  )
+}
 
-      <section id="about" data-reveal className="reveal border-y border-white/10 bg-[#f8fafc] py-20">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-          <div><p className="text-sm font-bold tracking-[0.25em] text-[#d3aa5c]">لماذا ميثاق؟</p><h2 className="mt-4 font-bold text-4xl leading-tight text-[#0f172a]">ثقة تُبنى على<br /><span className="text-[#d3aa5c]">المعرفة والالتزام</span></h2></div>
-          <div className="grid gap-6 sm:grid-cols-2"><div className="border-r-2 border-[#d3aa5c] pr-6"><p className="text-4xl font-bold text-[#d3aa5c]">+15</p><p className="mt-2 text-[#64748b]">عاماً من الخبرة القانونية</p></div><div className="border-r-2 border-[#d3aa5c] pr-6"><p className="text-4xl font-bold text-[#d3aa5c]">+500</p><p className="mt-2 text-[#64748b]">قضية وملف قانوني</p></div><p className="text-base leading-8 text-[#64748b] sm:col-span-2">نحن مكتب ميثاق للمحاماة والاستشارات القانونية، نعمل بمنهج يجمع بين قوة الحضور في ساحات القضاء ووضوح المشورة قبل اتخاذ القرار.</p></div>
-        </div>
-      </section>
-
-      <section id="services" data-reveal className="reveal mx-auto max-w-7xl px-5 py-24 lg:px-8"><div className="mb-12 flex flex-wrap items-end justify-between gap-5"><div><p className="text-sm font-bold tracking-[0.25em] text-[#d3aa5c]">مجالات العمل</p><h2 className="mt-3 font-bold text-4xl text-[#0f172a]">حلول قانونية <span className="text-[#d3aa5c]">متكاملة</span></h2></div><p className="max-w-sm text-sm leading-7 text-[#9eabb8]">نضع خبرتنا في خدمتك، من الاستشارة الأولى وحتى الوصول لأفضل نتيجة ممكنة.</p></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{services.map(({ icon: Icon, title, text }) => <article key={title} data-reveal className="reveal group rounded-2xl border border-[#0f172a]/10 bg-white shadow-[0_10px_35px_rgba(15,23,42,0.05)] p-7 transition-all duration-700 ease-out hover:-translate-y-1 hover:border-[#d3aa5c]/50 hover:bg-[#d3aa5c]/[0.08] hover:shadow-[0_18px_45px_rgba(0,0,0,0.18)]"><div className="mb-8 flex size-12 items-center justify-center rounded-xl bg-[#d3aa5c]/10 text-[#d3aa5c]"><Icon /></div><h3 className="text-xl font-bold text-[#0f172a]">{title}</h3><p className="mt-3 leading-7 text-[#9eabb8]">{text}</p><a href="#contact" className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#d3aa5c]">اعرف المزيد <ArrowLeft /></a></article>)}</div></section>
-
-      <section id="team" data-reveal className="reveal bg-[#0f172a] px-5 py-20 text-white"><div className="mx-auto max-w-7xl text-center"><p className="text-sm font-bold tracking-[0.25em] text-[#cbd5e1]">فريق من المحامين</p><h2 className="mt-4 font-bold text-4xl">خبرة تتحدث عن نفسها</h2><p className="mx-auto mt-5 max-w-2xl leading-8 text-[#cbd5e1]">سيتعرف عملاؤنا على فريق ميثاق، تخصصاتهم، وأبرز القضايا التي تميزوا بها.</p><div className="mt-10 flex flex-wrap justify-center gap-4"><span className="rounded-full border border-[#0b1a2e]/20 px-5 py-2">محامون متخصصون</span><span className="rounded-full border border-[#0b1a2e]/20 px-5 py-2">تمثيل أمام المحاكم</span><span className="rounded-full border border-[#0b1a2e]/20 px-5 py-2">سرية تامة</span></div></div></section>
-
-      <section id="contact" data-reveal className="reveal mx-auto max-w-7xl px-5 py-24 lg:px-8"><div className="grid gap-10 rounded-3xl border border-white/10 bg-[#f8fafc] p-8 md:grid-cols-[1fr_auto] md:p-12"><div><p className="text-sm font-bold tracking-[0.25em] text-[#d3aa5c]">خطوتك الأولى</p><h2 className="mt-4 font-bold text-4xl leading-tight text-[#0f172a]">لديك استفسار قانوني؟<br /><span className="text-[#d3aa5c]">نحن هنا للاستماع.</span></h2><p className="mt-5 max-w-xl leading-8 text-[#aeb8c3]">اترك لنا رسالتك وسيتواصل معك أحد أعضاء فريقنا في أقرب وقت.</p></div><div className="flex flex-col items-start justify-center gap-4"><a href="https://wa.me/201000000000" className="inline-flex items-center gap-3 rounded-full bg-[#d3aa5c] px-7 py-4 font-bold text-[#0f172a] transition hover:bg-[#e2bf7b]"><MessageCircle /> تواصل عبر واتساب</a><a href="mailto:info@mithaq-law.com" className="text-sm text-[#d3aa5c] underline underline-offset-4">info@mithaq-law.com</a></div></div></section>
-
-      <footer className="border-t border-white/10 bg-[#0f172a] px-5 py-8"><div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 text-center text-sm text-[#8f9aa6] sm:flex-row sm:text-right"><p>© 2026 ميثاق للمحاماة والاستشارات القانونية. جميع الحقوق محفوظة.</p><div className="flex items-center gap-3"><a href="https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr" target="_blank" rel="noreferrer" aria-label="فيسبوك" className="flex items-center gap-2 rounded-full border border-[#d3aa5c]/40 px-3 py-2 text-xs font-bold text-[#d3aa5c] transition hover:bg-[#d3aa5c] hover:text-[#0f172a]"><span className="text-base font-black">f</span> فيسبوك</a><a href="https://www.instagram.com/mithaq.law1" target="_blank" rel="noreferrer" aria-label="إنستغرام" className="flex items-center gap-2 rounded-full border border-[#d3aa5c]/40 px-3 py-2 text-xs font-bold text-[#d3aa5c] transition hover:bg-[#d3aa5c] hover:text-[#0f172a]"><span className="text-xs font-black">ig</span> إنستغرام</a><a href="#home" className="text-[#d3aa5c]">العودة للأعلى <ChevronDown className="inline rotate-180" /></a></div></div></footer>
-    </main>
+function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string
+  label: string
+  error?: string
+  hint?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <label htmlFor={id} className="text-sm font-medium text-ink-3">
+          {label}
+        </label>
+        {hint && <span className="text-xs text-ash">{hint}</span>}
+      </div>
+      {children}
+      {error && (
+        <p id={`${id}-error`} className="mt-2 flex items-start gap-1.5 text-[0.8rem] leading-6 text-[#a10d25]">
+          <AlertCircle className="mt-1 size-3.5 shrink-0" aria-hidden="true" />
+          {error}
+        </p>
+      )}
+    </div>
   )
 }
