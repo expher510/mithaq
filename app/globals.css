@@ -193,7 +193,7 @@
     filter 900ms var(--ease-out-soft);
   transition-delay: var(--d, 0ms);
 }
-[data-reveal].is-visible {
+[data-reveal][data-visible] {
   opacity: 1;
   transform: none;
   filter: none;
@@ -209,8 +209,8 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.is-visible .highlight,
-.highlight.is-visible {
+[data-visible] .highlight,
+.highlight[data-visible] {
   background-size: 100% 100%;
 }
 

@@ -244,8 +244,8 @@ const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI']
 const lawyers = [
   {
     photo: '/images/lawyer-1.png',
-    alt: 'أ. أحمد أبو زيد، الشريك المؤسس لمكتب ميثاق',
-    name: 'أ. أحمد أبو زيد',
+    alt: 'أ. محمد أبو زيد، الشريك المؤسس لمكتب ميثاق',
+    name: 'أ. محمد أبو زيد',
     role: 'الشريك المؤسس',
     credential: 'محامٍ بالنقض والدستورية العليا',
     bio: 'خبرة قضائية تتجاوز 18 عاماً في الدعاوى الجنائية الكبرى، قضايا الأموال العامة، والنزاعات الاستثمارية.',
@@ -481,7 +481,8 @@ export function MithaqSite() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible')
+            // An attribute, not a class: React rewrites className on re-render and would hide it again
+            entry.target.setAttribute('data-visible', '')
             io.unobserve(entry.target)
           }
         })
