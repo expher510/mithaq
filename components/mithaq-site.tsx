@@ -17,7 +17,6 @@ import {
   Gavel,
   Mail,
   MapPin,
-  Menu,
   Phone,
   Scale,
   ShieldCheck,
@@ -402,7 +401,7 @@ export function MithaqSite() {
   const successRef = useRef<HTMLHeadingElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
-  // Header surface changes once the hero is scrolled past
+  // Header morphs into a floating pill once scrolled
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
     handleScroll()
@@ -510,13 +509,24 @@ export function MithaqSite() {
         </div>
       )}
 
-      {/* Header — floats over the hero, turns solid on scroll */}
+      {/* Header — floats over the hero, morphs into a pill on scroll */}
       <header
-        className={`sticky top-0 z-40 -mb-[4.75rem] transition-[background-color,color,box-shadow] duration-500 ${
-          onHero ? 'bg-transparent text-white' : 'bg-white/90 text-ink shadow-[0_1px_0_rgba(10,10,10,0.06)] backdrop-blur-xl'
+        className={`sticky top-0 z-40 -mb-[4.75rem] transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          scrolled || mobileMenuOpen ? 'px-3 pt-3' : ''
         }`}
       >
-        <div className="mx-auto flex h-[4.75rem] max-w-[88rem] items-center justify-between gap-6 px-5 lg:px-8">
+        <div
+          className={`mx-auto transition-[max-width,border-radius,background-color,color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            onHero
+              ? 'max-w-[88rem] rounded-none bg-transparent text-white'
+              : 'max-w-[62rem] rounded-full bg-white/85 text-ink shadow-[0_10px_40px_-12px_rgba(10,10,10,0.25),0_0_0_1px_rgba(10,10,10,0.06)] backdrop-blur-xl'
+          }`}
+        >
+        <div
+          className={`mx-auto flex max-w-[88rem] items-center justify-between gap-6 transition-[height,padding] duration-500 motion-reduce:transition-none ${
+            onHero ? 'h-[4.75rem] px-5 lg:px-8' : 'h-16 ps-6 pe-2.5'
+          }`}
+        >
           <a href="#home" aria-label="ميثاق للمحاماة — الصفحة الرئيسية">
             <Wordmark tone={onHero ? 'light' : 'dark'} />
           </a>
@@ -545,32 +555,57 @@ export function MithaqSite() {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav"
             >
-              {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+              <span className="burger" data-open={mobileMenuOpen} aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
             </button>
           </div>
         </div>
 
-        <div id="mobile-nav" className="collapse-grid bg-white lg:hidden" data-open={mobileMenuOpen} inert={!mobileMenuOpen}>
-          <div>
-            <nav className="mx-auto flex max-w-[88rem] flex-col px-5 pb-6" aria-label="قائمة الهاتف">
-              {navLinks.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between border-b border-sand py-4 text-lg text-ink"
-                >
-                  {l.label}
-                  <ArrowUpLeft className="size-4 text-stone" />
-                </a>
-              ))}
-              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className={cn(pillDark, 'mt-6 py-3.5')}>
-                احجز استشارة مجانية
+        </div>
+
+        {/* Mobile menu — floats under the pill; only transform/opacity animate so the page never reflows */}
+        <div
+          id="mobile-nav"
+          data-open={mobileMenuOpen}
+          inert={!mobileMenuOpen}
+          className="mobile-menu absolute inset-x-3 top-full mx-auto mt-2 max-w-[62rem] origin-top rounded-[1.75rem] bg-white p-2 text-ink shadow-[0_24px_60px_-16px_rgba(10,10,10,0.35),0_0_0_1px_rgba(10,10,10,0.06)] lg:hidden"
+        >
+          <nav className="flex flex-col px-4 pb-3" aria-label="قائمة الهاتف">
+            {navLinks.map((l, i) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ '--i': i } as React.CSSProperties}
+                className="mobile-menu-item flex items-center justify-between border-b border-sand py-4 text-lg text-ink"
+              >
+                {l.label}
+                <ArrowUpLeft className="size-4 text-stone" />
               </a>
-            </nav>
-          </div>
+            ))}
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ '--i': navLinks.length } as React.CSSProperties}
+              className={cn(pillDark, 'mobile-menu-item mt-5 py-3.5')}
+            >
+              احجز استشارة مجانية
+            </a>
+          </nav>
         </div>
       </header>
+
+      {/* Dims the page behind the open mobile menu */}
+      <div
+        aria-hidden="true"
+        onClick={() => setMobileMenuOpen(false)}
+        className={`fixed inset-0 z-30 bg-ink/40 transition-opacity duration-300 lg:hidden ${
+          mobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      />
 
       <main id="main">
         {/* HERO */}
