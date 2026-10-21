@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import {
-  AlertCircle,
   ArrowLeft,
   ArrowUpLeft,
   Award,
@@ -15,7 +14,6 @@ import {
   Clock,
   FileSpreadsheet,
   Gavel,
-  Mail,
   MapPin,
   Phone,
   Scale,
@@ -214,20 +212,30 @@ const navLinks = [
   { href: '#services', label: 'الخدمات' },
   { href: '#process', label: 'مسار القضية' },
   { href: '#team', label: 'المحامون' },
+  { href: '#videos', label: 'فيديوهات' },
   { href: '#faq', label: 'الأسئلة الشائعة' },
 ]
 
-const serviceOptions = [
-  'جنايات وجرائم اقتصادية',
-  'قضايا شركات وتحكيم تجاري',
-  'منازعات عمالية',
-  'مجلس دولة وقضاء إداري',
-  'صياغة وتدقيق عقود',
-  'قضايا أسرة وتركات',
-  'استشارة عامة',
+const socialLinks = {
+  facebook: 'https://www.facebook.com/share/19veGAUL9U/',
+  instagram: 'https://www.instagram.com/mithaq.law1',
+  youtube: 'https://www.youtube.com/@Mohamedabuzied027',
+}
+
+// YouTube explainers from the Mithaq Legal channel
+const videos = [
+  { id: 'BNrulWoIPTg', title: 'قائمة المنقولات الزوجية' },
+  { id: 'IAPjEYty5vY', title: 'الإيجار القديم' },
+  { id: 'aAmhmfIMYUI', title: 'تشابه الأسماء' },
+  { id: 'XJcoUg00KLA', title: 'محو الأحكام' },
 ]
 
-const consultationOptions = ['مكتبية في مقر ميثاق', 'مكالمة هاتفية عاجلة', 'اجتماع فيديو أونلاين (Zoom)']
+// Clients reach the office by WhatsApp or phone only
+const contact = {
+  whatsapp: `https://wa.me/201143157377?text=${encodeURIComponent('مرحباً، أريد استشارة قانونية.')}`,
+  phone: '+201143157377',
+  phoneDisplay: '+20 114 315 7377',
+}
 
 const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI']
 
@@ -252,18 +260,6 @@ const lawyers = [
 
 const toArabicDigits = (n: number) => n.toLocaleString('ar-EG')
 
-type FormErrors = Partial<Record<'name' | 'phone' | 'details', string>>
-
-function validate(data: { name: string; phone: string; details: string }): FormErrors {
-  const errors: FormErrors = {}
-  if (data.name.trim().length < 3) errors.name = 'اكتب اسمك الكامل (3 أحرف على الأقل).'
-  const digits = data.phone.replace(/\D/g, '')
-  if (!digits) errors.phone = 'أدخل رقم هاتف أو واتساب للتواصل معك.'
-  else if (digits.length < 10 || digits.length > 15) errors.phone = 'رقم الهاتف غير مكتمل. مثال: 01001234567'
-  if (data.details.trim().length < 15) errors.details = 'اكتب ملخصاً من سطر أو سطرين حتى نوجّه طلبك للمستشار المختص.'
-  return errors
-}
-
 /* Brand glyphs (lucide no longer ships brand icons) */
 function FacebookGlyph(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -281,6 +277,62 @@ function InstagramGlyph(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+function YouTubeGlyph(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4a2.5 2.5 0 0 0-1.8 1.8C2 8.8 2 12 2 12s0 3.2.4 4.8a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-4.8.4-4.8s0-3.2-.4-4.8ZM10 15V9l5.2 3L10 15Z" />
+    </svg>
+  )
+}
+
+/* Lightweight YouTube player: shows the thumbnail and only loads the iframe once played */
+function VideoCard({ id, title, index }: { id: string; title: string; index: number }) {
+  const [playing, setPlaying] = useState(false)
+  return (
+    <article data-reveal style={{ '--d': `${index * 100}ms` } as React.CSSProperties} className="group">
+      <div className="relative aspect-video overflow-hidden rounded-2xl bg-ink">
+        {playing ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}
+            title={title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 size-full"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label={`تشغيل فيديو: ${title}`}
+            className="absolute inset-0 size-full cursor-pointer"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://i.ytimg.com/vi/${id}/sddefault.jpg`}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.04]"
+            />
+            <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-ink/10" />
+            <span
+              aria-hidden="true"
+              className="absolute top-1/2 left-1/2 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink shadow-lg backdrop-blur transition-transform duration-300 group-hover:scale-110 sm:size-20"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="ms-1 size-6 sm:size-7">
+                <path d="M7 4.5v15l13-7.5-13-7.5Z" />
+              </svg>
+            </span>
+          </button>
+        )}
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <h3 className="text-lg font-semibold sm:text-xl">{title}</h3>
+        <span className="text-xs text-stone tabular-nums" dir="ltr">0{index + 1}</span>
+      </div>
+    </article>
+  )
+}
+
 function WhatsAppGlyph(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -374,8 +426,6 @@ const pillLight =
   'group inline-flex items-center justify-center gap-2 rounded-full bg-[#ececec] px-6 py-3 text-[0.95rem] font-medium text-ink transition-[background-color,transform] duration-300 hover:bg-white active:scale-[0.98]'
 const pillDark =
   'group inline-flex items-center justify-center gap-2 rounded-full bg-ink-2 px-6 py-3 text-[0.95rem] font-medium text-white transition-[background-color,transform] duration-300 hover:bg-ink-3 active:scale-[0.98]'
-const fieldBase =
-  'w-full rounded-xl border bg-white px-4 py-3 text-[0.95rem] text-ink placeholder:text-ash transition-[border-color,box-shadow] duration-200 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-copper/15'
 
 export function MithaqSite() {
   const [scrolled, setScrolled] = useState(false)
@@ -385,21 +435,7 @@ export function MithaqSite() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [showTopBanner, setShowTopBanner] = useState(true)
 
-  // Booking Form State
-  const [formSubmitted, setFormSubmitted] = useState(false)
-  const [formErrors, setFormErrors] = useState<FormErrors>({})
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    serviceType: 'جنايات وجرائم اقتصادية',
-    consultationType: 'مكتبية في مقر ميثاق',
-    details: '',
-  })
-
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const successRef = useRef<HTMLHeadingElement>(null)
-  const formRef = useRef<HTMLFormElement>(null)
 
   // Header morphs into a floating pill once scrolled
   useEffect(() => {
@@ -435,29 +471,6 @@ export function MithaqSite() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileMenuOpen])
 
-  useEffect(() => {
-    if (formSubmitted) successRef.current?.focus()
-  }, [formSubmitted])
-
-  const updateField = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (formErrors[field as keyof FormErrors]) {
-      setFormErrors((prev) => ({ ...prev, [field]: undefined }))
-    }
-  }
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const errors = validate(formData)
-    setFormErrors(errors)
-    const firstInvalid = (Object.keys(errors) as (keyof FormErrors)[])[0]
-    if (firstInvalid) {
-      formRef.current?.querySelector<HTMLElement>(`#field-${firstInvalid}`)?.focus()
-      return
-    }
-    setFormSubmitted(true)
-  }
-
   const onTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
     const last = processSteps.length - 1
     let next: number | null = null
@@ -473,7 +486,6 @@ export function MithaqSite() {
   }
 
   const step = processSteps[activeStep]
-  const errorCount = Object.values(formErrors).filter(Boolean).length
   const onHero = !scrolled && !mobileMenuOpen
 
   return (
@@ -864,11 +876,7 @@ export function MithaqSite() {
                             </li>
                           ))}
                         </ul>
-                        <a
-                          href="#contact"
-                          onClick={() => updateField('serviceType', serviceOptions[i])}
-                          className={cn(pillLight, 'mt-8 px-5 py-2.5 text-sm')}
-                        >
+                        <a href="#contact" className={cn(pillLight, 'mt-8 px-5 py-2.5 text-sm')}>
                           اطلب استشارة في هذا المجال
                           <ArrowUpLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" />
                         </a>
@@ -914,11 +922,7 @@ export function MithaqSite() {
                               </li>
                             ))}
                           </ul>
-                          <a
-                            href="#contact"
-                            onClick={() => updateField('serviceType', serviceOptions[i])}
-                            className={cn(pillLight, 'mt-5 px-5 py-2.5 text-sm')}
-                          >
+                          <a href="#contact" className={cn(pillLight, 'mt-5 px-5 py-2.5 text-sm')}>
                             اطلب استشارة
                           </a>
                         </div>
@@ -1148,6 +1152,42 @@ export function MithaqSite() {
           </div>
         </section>
 
+        {/* VIDEOS */}
+        <section id="videos" aria-labelledby="videos-title" className="bg-smoke py-24 sm:py-32">
+          <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
+              <div data-reveal>
+                <SectionLabel>فيديوهات توعوية</SectionLabel>
+              </div>
+              <div data-reveal style={{ '--d': '100ms' } as React.CSSProperties}>
+                <h2 id="videos-title" className="text-[clamp(2rem,4.6vw,4rem)] leading-[1.2] font-medium tracking-tight">
+                  القانون ببساطة، في دقائق.
+                </h2>
+                <div className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                  <p className="max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
+                    شروحات قصيرة لأكثر المسائل القانونية التي تشغل الناس، من قناة ميثاق على يوتيوب.
+                  </p>
+                  <a
+                    href={socialLinks.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cn(pillDark, 'shrink-0 self-start sm:self-auto')}
+                  >
+                    <YouTubeGlyph className="size-5" />
+                    زُر القناة
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-16 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2">
+              {videos.map((v, i) => (
+                <VideoCard key={v.id} id={v.id} title={v.title} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section id="faq" aria-labelledby="faq-title" className="py-24 sm:py-32">
           <div className="mx-auto grid max-w-[88rem] grid-cols-1 gap-12 px-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-20 lg:px-8">
@@ -1161,7 +1201,7 @@ export function MithaqSite() {
               </p>
               <div className="mt-10 border-t border-sand pt-6 text-sm">
                 <p className="text-stone">لم تجد سؤالك؟</p>
-                <a href="tel:+201001234567" className="mt-1 inline-flex items-center gap-1.5 font-medium transition-colors hover:text-copper-ink">
+                <a href={contact.whatsapp} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1.5 font-medium transition-colors hover:text-copper-ink">
                   تحدث مع محامٍ مباشرة
                   <ArrowUpLeft className="size-4 text-copper" aria-hidden="true" />
                 </a>
@@ -1206,154 +1246,70 @@ export function MithaqSite() {
           </div>
         </section>
 
-        {/* CONTACT */}
+        {/* CONTACT — WhatsApp and phone only */}
         <section id="contact" aria-labelledby="contact-title" className="pb-24 sm:pb-32">
           <div className="mx-auto max-w-[88rem] px-5 lg:px-8">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-              <div data-reveal className="rounded-2xl border border-sand p-6 sm:p-10" aria-live="polite">
-                {formSubmitted ? (
-                  <div className="fade-swap flex min-h-[30rem] flex-col items-center justify-center py-8 text-center">
-                    <span className="grid size-16 place-items-center rounded-full bg-ink text-white">
-                      <Check className="size-7" strokeWidth={2.5} aria-hidden="true" />
+              <div data-reveal className="flex flex-col rounded-2xl border border-sand p-6 sm:p-10">
+                <SectionLabel>تواصل معنا</SectionLabel>
+                <h2 id="contact-title" className="mt-5 text-3xl leading-tight font-medium tracking-tight sm:text-4xl">
+                  خطوتك الأولى نحو حماية حقوقك.
+                </h2>
+                <p className="mt-3 max-w-xl text-[0.95rem] leading-[1.9] text-stone">
+                  الاستشارة الأولى مجانية. راسلنا على واتساب أو اتصل بنا مباشرة، وسيتواصل معك المستشار المختص بموضوعك.
+                </p>
+
+                <div className="mt-10 grid flex-1 gap-4 sm:grid-cols-2">
+                  <a
+                    href={contact.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex min-h-[15rem] flex-col justify-between rounded-2xl bg-ink p-6 text-white transition-colors duration-300 hover:bg-ink-2 sm:p-7"
+                  >
+                    <span className="grid size-14 place-items-center rounded-full bg-white/[0.08] text-copper-glow transition-colors duration-300 group-hover:bg-white group-hover:text-ink">
+                      <WhatsAppGlyph className="size-7" />
                     </span>
-                    <h3 ref={successRef} tabIndex={-1} className="mt-6 text-2xl font-semibold focus:outline-none">
-                      وصلنا طلب الاستشارة
-                    </h3>
-                    <p className="mt-3 max-w-sm text-[0.95rem] leading-[1.9] text-stone">
-                      شكراً {formData.name.trim().split(' ')[0]}. سيتواصل معك المستشار المختص على{' '}
-                      <span dir="ltr" className="font-medium text-ink">{formData.phone}</span> خلال أقل من ساعتين في أوقات العمل.
-                    </p>
-                    <button type="button" onClick={() => setFormSubmitted(false)} className={cn(pillDark, 'mt-8 bg-smoke text-ink hover:bg-sand')}>
-                      إرسال طلب آخر
-                    </button>
-                  </div>
-                ) : (
-                  <form ref={formRef} onSubmit={handleFormSubmit} noValidate className="space-y-5">
-                    <div>
-                      <SectionLabel>تواصل معنا</SectionLabel>
-                      <h2 id="contact-title" className="mt-5 text-3xl leading-tight font-medium tracking-tight sm:text-4xl">
-                        خطوتك الأولى نحو حماية حقوقك.
-                      </h2>
-                      <p className="mt-3 text-sm text-stone">الاستشارة الأولى مجانية. الحقول المعلَّمة * مطلوبة.</p>
-                    </div>
-
-                    {errorCount > 0 && (
-                      <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#c8102e]/[0.06] px-4 py-3 text-sm text-[#a10d25]">
-                        <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                        {errorCount === 1 ? 'حقل واحد يحتاج إلى تصحيح قبل الإرسال.' : `${toArabicDigits(errorCount)} حقول تحتاج إلى تصحيح قبل الإرسال.`}
-                      </p>
-                    )}
-
-                    <div className="grid gap-5 sm:grid-cols-2">
-                      <Field id="field-name" label="الاسم بالكامل *" error={formErrors.name}>
-                        <input
-                          id="field-name"
-                          type="text"
-                          autoComplete="name"
-                          value={formData.name}
-                          onChange={(e) => updateField('name', e.target.value)}
-                          placeholder="مثال: محمد أحمد"
-                          aria-invalid={!!formErrors.name}
-                          aria-describedby={formErrors.name ? 'field-name-error' : undefined}
-                          className={`${fieldBase} ${formErrors.name ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
-                        />
-                      </Field>
-                      <Field id="field-phone" label="رقم الهاتف / واتساب *" error={formErrors.phone}>
-                        <input
-                          id="field-phone"
-                          type="tel"
-                          inputMode="tel"
-                          autoComplete="tel"
-                          dir="ltr"
-                          value={formData.phone}
-                          onChange={(e) => updateField('phone', e.target.value)}
-                          placeholder="010XXXXXXXX"
-                          aria-invalid={!!formErrors.phone}
-                          aria-describedby={formErrors.phone ? 'field-phone-error' : undefined}
-                          className={`${fieldBase} text-right ${formErrors.phone ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
-                        />
-                      </Field>
-                    </div>
-
-                    <div className="grid gap-5 sm:grid-cols-2">
-                      <Field id="field-service" label="مجال القضية">
-                        <select
-                          id="field-service"
-                          value={formData.serviceType}
-                          onChange={(e) => updateField('serviceType', e.target.value)}
-                          className={`${fieldBase} select-arrow border-sand hover:border-ash focus:border-copper`}
-                        >
-                          {serviceOptions.map((o) => (
-                            <option key={o}>{o}</option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field id="field-consultation" label="طريقة الاستشارة">
-                        <select
-                          id="field-consultation"
-                          value={formData.consultationType}
-                          onChange={(e) => updateField('consultationType', e.target.value)}
-                          className={`${fieldBase} select-arrow border-sand hover:border-ash focus:border-copper`}
-                        >
-                          {consultationOptions.map((o) => (
-                            <option key={o}>{o}</option>
-                          ))}
-                        </select>
-                      </Field>
-                    </div>
-
-                    <Field id="field-details" label="ملخص القضية أو الاستفسار *" error={formErrors.details} hint={`${toArabicDigits(formData.details.length)} حرف`}>
-                      <textarea
-                        id="field-details"
-                        rows={5}
-                        value={formData.details}
-                        onChange={(e) => updateField('details', e.target.value)}
-                        placeholder="اذكر بإيجاز طبيعة الموضوع ليتسنى تحويله للمستشار المختص."
-                        aria-invalid={!!formErrors.details}
-                        aria-describedby={formErrors.details ? 'field-details-error' : undefined}
-                        className={`${fieldBase} resize-y leading-7 ${formErrors.details ? 'border-[#c8102e]/60' : 'border-sand hover:border-ash focus:border-copper'}`}
-                      />
-                    </Field>
-
-                    <div className="flex flex-col-reverse items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="flex items-center gap-2 text-xs text-stone">
-                        <ShieldCheck className="size-4 shrink-0 text-copper-ink" aria-hidden="true" />
-                        كل ما ترسله يخضع للسرية المهنية المطلقة.
-                      </p>
-                      <button type="submit" className={cn(pillDark, 'px-7 py-3.5')}>
-                        إرسال الطلب
+                    <span>
+                      <span className="block text-2xl font-semibold">راسلنا على واتساب</span>
+                      <span className="mt-2 block text-sm leading-7 text-white/60">اكتب لنا تفاصيل موضوعك وسنرد عليك في أقرب وقت.</span>
+                      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-copper-glow">
+                        ابدأ المحادثة
                         <ArrowUpLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </form>
-                )}
+                      </span>
+                    </span>
+                    <span className="sr-only"> (تفتح في نافذة جديدة)</span>
+                  </a>
+
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="group flex min-h-[15rem] flex-col justify-between rounded-2xl bg-smoke p-6 transition-colors duration-300 hover:bg-sand sm:p-7"
+                  >
+                    <span className="grid size-14 place-items-center rounded-full bg-white text-copper-ink transition-colors duration-300 group-hover:bg-ink group-hover:text-white">
+                      <Phone className="size-6" aria-hidden="true" />
+                    </span>
+                    <span>
+                      <span className="block text-2xl font-semibold">اتصل بنا</span>
+                      <span className="mt-2 block text-lg font-medium tabular-nums" dir="ltr">{contact.phoneDisplay}</span>
+                      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-copper-ink">
+                        اتصال مباشر
+                        <ArrowUpLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                      </span>
+                    </span>
+                  </a>
+                </div>
               </div>
 
               <div data-reveal style={{ '--d': '120ms' } as React.CSSProperties} className="relative isolate flex min-h-[26rem] flex-col justify-between overflow-hidden rounded-2xl bg-ink p-6 text-white sm:p-8">
                 <Image src="/images/folder.png" alt="" fill sizes="(min-width: 1024px) 35vw, 90vw" className="-z-10 object-cover object-[10%_30%] opacity-30" />
                 <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/60 to-ink" />
                 <div>
-                  <p className="text-sm text-white/60">تواصل مباشر</p>
-                  <ul className="mt-6 space-y-5">
-                    <li>
-                      <a href="tel:+201001234567" className="group flex items-center gap-3">
-                        <Phone className="size-5 text-copper-glow" aria-hidden="true" />
-                        <span className="text-lg font-medium transition-colors group-hover:text-copper-glow" dir="ltr">+20 100 123 4567</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="https://wa.me/201001234567" target="_blank" rel="noreferrer" className="group flex items-center gap-3">
-                        <WhatsAppGlyph className="size-5 text-copper-glow" />
-                        <span className="transition-colors group-hover:text-copper-glow">واتساب — متاح 24/7 للحالات الطارئة<span className="sr-only"> (تفتح في نافذة جديدة)</span></span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="mailto:info@mithaq-law.com" className="group flex items-center gap-3">
-                        <Mail className="size-5 text-copper-glow" aria-hidden="true" />
-                        <span className="transition-colors group-hover:text-copper-glow" dir="ltr">info@mithaq-law.com</span>
-                      </a>
-                    </li>
-                  </ul>
+                  <span className="grid size-12 place-items-center rounded-full bg-white/[0.08] text-copper-glow">
+                    <ShieldCheck className="size-6" aria-hidden="true" />
+                  </span>
+                  <p className="mt-6 text-2xl leading-snug font-medium">سرية مهنية مطلقة.</p>
+                  <p className="mt-3 max-w-sm text-sm leading-7 text-white/65">
+                    كل ما تشاركه معنا — في رسالة أو مكالمة — يبقى بينك وبين محاميك، ولا يُستخدم إلا لخدمة قضيتك.
+                  </p>
                 </div>
                 <div className="mt-10 flex items-center justify-between border-t border-white/15 pt-5 text-sm">
                   <span className="text-white/60">المقر الرئيسي</span>
@@ -1396,17 +1352,18 @@ export function MithaqSite() {
               <h2 className="text-xs tracking-wide text-white/40">تواصل</h2>
               <ul className="mt-5 space-y-3 text-sm text-white/80">
                 <li>
-                  <a href="mailto:info@mithaq-law.com" className="transition-colors hover:text-white" dir="ltr">info@mithaq-law.com</a>
+                  <a href={`tel:${contact.phone}`} className="transition-colors hover:text-white" dir="ltr">{contact.phoneDisplay}</a>
                 </li>
                 <li>
-                  <a href="tel:+201001234567" className="transition-colors hover:text-white" dir="ltr">+20 100 123 4567</a>
+                  <a href={contact.whatsapp} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">واتساب</a>
                 </li>
               </ul>
               <ul className="mt-6 flex items-center gap-2" aria-label="حسابات ميثاق">
                 {[
-                  { href: 'https://www.facebook.com/share/1EkiSGTRq7/?mibextid=wwXIfr', label: 'فيسبوك', Icon: FacebookGlyph },
-                  { href: 'https://www.instagram.com/mithaq.law1', label: 'إنستغرام', Icon: InstagramGlyph },
-                  { href: 'https://wa.me/201001234567', label: 'واتساب', Icon: WhatsAppGlyph },
+                  { href: socialLinks.facebook, label: 'فيسبوك', Icon: FacebookGlyph },
+                  { href: socialLinks.instagram, label: 'إنستغرام', Icon: InstagramGlyph },
+                  { href: socialLinks.youtube, label: 'يوتيوب', Icon: YouTubeGlyph },
+                  { href: contact.whatsapp, label: 'واتساب', Icon: WhatsAppGlyph },
                 ].map(({ href, label, Icon }) => (
                   <li key={label}>
                     <a
@@ -1432,38 +1389,6 @@ export function MithaqSite() {
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function Field({
-  id,
-  label,
-  error,
-  hint,
-  children,
-}: {
-  id: string
-  label: string
-  error?: string
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div>
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium text-ink-3">
-          {label}
-        </label>
-        {hint && <span className="text-xs text-ash">{hint}</span>}
-      </div>
-      {children}
-      {error && (
-        <p id={`${id}-error`} className="mt-2 flex items-start gap-1.5 text-[0.8rem] leading-6 text-[#a10d25]">
-          <AlertCircle className="mt-1 size-3.5 shrink-0" aria-hidden="true" />
-          {error}
-        </p>
-      )}
     </div>
   )
 }
