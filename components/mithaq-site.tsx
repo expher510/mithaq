@@ -220,6 +220,8 @@ const socialLinks = {
   facebook: 'https://www.facebook.com/share/19veGAUL9U/',
   instagram: 'https://www.instagram.com/mithaq.law1',
   youtube: 'https://www.youtube.com/@Mohamedabuzied027',
+  // Public awareness group — kept separate from the private Business chat below
+  whatsappGroup: 'https://chat.whatsapp.com/BpuTwlVm1Ba3UylV5nZsXO',
 }
 
 // YouTube explainers from the Mithaq Legal channel
@@ -232,7 +234,7 @@ const videos = [
 
 // Clients reach the office by WhatsApp or phone only
 const contact = {
-  whatsapp: `https://wa.me/201143157377?text=${encodeURIComponent('مرحباً، أريد استشارة قانونية.')}`,
+  whatsapp: 'https://wa.me/message/TSVUEMJP5KHBI1',
   phone: '+201143157377',
   phoneDisplay: '+20 114 315 7377',
 }
@@ -250,8 +252,8 @@ const lawyers = [
   },
   {
     photo: '/images/lawyer-2.png',
-    alt: 'الشريك الأول لمكتب ميثاق',
-    name: 'أ. شريك قانوني أول',
+    alt: 'أ. محمد شريف، الشريك الرئيسي لمكتب ميثاق',
+    name: 'أ. محمد شريف',
     role: 'شريك رئيسي',
     credential: 'مستشار مجلس الدولة والشركات',
     bio: 'متخصص في الطعون الإدارية أمام مجلس الدولة، قضايا الضرائب والجمارك، وصياغة العقود الدولية.',
@@ -282,6 +284,33 @@ function YouTubeGlyph(props: React.SVGProps<SVGSVGElement>) {
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4a2.5 2.5 0 0 0-1.8 1.8C2 8.8 2 12 2 12s0 3.2.4 4.8a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-4.8.4-4.8s0-3.2-.4-4.8ZM10 15V9l5.2 3L10 15Z" />
     </svg>
+  )
+}
+
+/* Round icon links to the firm's social accounts (dark surfaces) */
+function SocialIcons({ className = '', withWhatsApp = false }: { className?: string; withWhatsApp?: boolean }) {
+  const accounts = [
+    { href: socialLinks.facebook, label: 'فيسبوك', Icon: FacebookGlyph },
+    { href: socialLinks.instagram, label: 'إنستغرام', Icon: InstagramGlyph },
+    { href: socialLinks.youtube, label: 'يوتيوب', Icon: YouTubeGlyph },
+    ...(withWhatsApp ? [{ href: contact.whatsapp, label: 'واتساب', Icon: WhatsAppGlyph }] : []),
+  ]
+  return (
+    <ul className={`flex items-center gap-2 ${className}`} aria-label="حسابات ميثاق">
+      {accounts.map(({ href, label, Icon }) => (
+        <li key={label}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`${label} (تفتح في نافذة جديدة)`}
+            className="grid size-10 place-items-center rounded-full bg-white/[0.06] text-white/80 transition-colors duration-300 hover:bg-white hover:text-ink"
+          >
+            <Icon className="size-[18px]" />
+          </a>
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -503,7 +532,7 @@ export function MithaqSite() {
           <div className="mx-auto flex max-w-[88rem] items-center gap-3 px-5 py-2.5 lg:px-8">
             <p className="flex flex-1 items-center justify-center gap-3">
               <span>
-                حجز الاستشارات مفتوح الآن<span className="hidden sm:inline"> في مقر ميثاق بالقاهرة</span>
+                حجز الاستشارات مفتوح الآن<span className="hidden sm:inline"> في مقر ميثاق بالإسماعيلية</span>
               </span>
               <a href="#contact" className="rounded-full bg-ink px-3.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-ink-3">
                 احجز موعداً
@@ -1167,15 +1196,21 @@ export function MithaqSite() {
                   <p className="max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
                     شروحات قصيرة لأكثر المسائل القانونية التي تشغل الناس، من قناة ميثاق على يوتيوب.
                   </p>
-                  <a
-                    href={socialLinks.youtube}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={cn(pillDark, 'shrink-0 self-start sm:self-auto')}
-                  >
-                    <YouTubeGlyph className="size-5" />
-                    زُر القناة
-                  </a>
+                  <div className="flex shrink-0 flex-wrap gap-3">
+                    <a href={socialLinks.youtube} target="_blank" rel="noreferrer" className={pillDark}>
+                      <YouTubeGlyph className="size-5" />
+                      زُر القناة
+                    </a>
+                    <a
+                      href={socialLinks.whatsappGroup}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={cn(pillLight, 'bg-white ring-1 ring-sand hover:bg-paper')}
+                    >
+                      <WhatsAppGlyph className="size-5" />
+                      انضم لجروب التوعية
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1311,10 +1346,14 @@ export function MithaqSite() {
                     كل ما تشاركه معنا — في رسالة أو مكالمة — يبقى بينك وبين محاميك، ولا يُستخدم إلا لخدمة قضيتك.
                   </p>
                 </div>
-                <div className="mt-10 flex items-center justify-between border-t border-white/15 pt-5 text-sm">
+                <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-5 text-sm">
+                  <span className="text-white/60">تابعنا</span>
+                  <SocialIcons />
+                </div>
+                <div className="mt-5 flex items-center justify-between border-t border-white/15 pt-5 text-sm">
                   <span className="text-white/60">المقر الرئيسي</span>
                   <span className="flex items-center gap-2">
-                    <MapPin className="size-4 text-copper-glow" aria-hidden="true" /> القاهرة، مصر
+                    <MapPin className="size-4 text-copper-glow" aria-hidden="true" /> الإسماعيلية، مصر
                   </span>
                 </div>
               </div>
@@ -1345,7 +1384,7 @@ export function MithaqSite() {
             </nav>
             <div>
               <h2 className="text-xs tracking-wide text-white/40">المقر</h2>
-              <p className="mt-5 text-sm font-medium">القاهرة</p>
+              <p className="mt-5 text-sm font-medium">الإسماعيلية</p>
               <p className="mt-1 text-sm leading-7 text-white/60">جمهورية مصر العربية</p>
             </div>
             <div>
@@ -1357,27 +1396,11 @@ export function MithaqSite() {
                 <li>
                   <a href={contact.whatsapp} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">واتساب</a>
                 </li>
+                <li>
+                  <a href={socialLinks.whatsappGroup} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">جروب ميثاق على واتساب</a>
+                </li>
               </ul>
-              <ul className="mt-6 flex items-center gap-2" aria-label="حسابات ميثاق">
-                {[
-                  { href: socialLinks.facebook, label: 'فيسبوك', Icon: FacebookGlyph },
-                  { href: socialLinks.instagram, label: 'إنستغرام', Icon: InstagramGlyph },
-                  { href: socialLinks.youtube, label: 'يوتيوب', Icon: YouTubeGlyph },
-                  { href: contact.whatsapp, label: 'واتساب', Icon: WhatsAppGlyph },
-                ].map(({ href, label, Icon }) => (
-                  <li key={label}>
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${label} (تفتح في نافذة جديدة)`}
-                      className="grid size-10 place-items-center rounded-full bg-white/[0.06] text-white/80 transition-colors duration-300 hover:bg-white hover:text-ink"
-                    >
-                      <Icon className="size-[18px]" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <SocialIcons className="mt-6" withWhatsApp />
             </div>
           </div>
           <div className="flex flex-col gap-3 pt-8 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
