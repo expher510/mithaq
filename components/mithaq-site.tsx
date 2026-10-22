@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
   ArrowUpLeft,
-  Award,
   Briefcase,
   Building,
   Check,
@@ -26,12 +25,28 @@ import {
 // Practice areas data
 const practiceAreas = [
   {
+    id: 'labor',
+    icon: Briefcase,
+    title: 'القضايا العمالية ومنازعات العمل',
+    tag: 'توازن وحماية الحقوق',
+    description: 'تسوية النزاعات العمالية المعقدة لأصحاب الأعمال والموظفين، صياغة لوائح العمل وحماية الحقوق المالية والمكافآت.',
+    features: ['دعاوى الفصل التعسفي والتعويضات', 'صياغة واعتماد لوائح العمل الداخلية', 'التمثيل أمام مكاتب ومحاكم العمل'],
+  },
+  {
     id: 'criminal',
     icon: Gavel,
     title: 'الجنايات والجرائم الاقتصادية',
     tag: 'حضور جنائي حازم',
     description: 'تمثيل قانوني ودفاع استراتيجي رفيع المستوى في قضايا الجنايات، الأموال العامة، الجرائم المصرفية والجرائم الإلكترونية.',
-    features: ['مرافعة أمام محاكم الجنايات والنقض', 'قضايا الكسب غير المشروع والأموال العامة', 'الجرائم الاقتصادية وغسيل الأموال'],
+    features: ['المرافعة أمام محاكم الجنايات', 'قضايا الكسب غير المشروع والأموال العامة', 'الجرائم الاقتصادية وغسيل الأموال'],
+  },
+  {
+    id: 'family',
+    icon: Users,
+    title: 'قضايا الأسرة والتركات والوصايا',
+    tag: 'خصوصية واحترافية تامة',
+    description: 'حلول تحفظ الحقوق والكرامة وتراعي أقصى درجات السرية والخصوصية في قضايا الأحوال الشخصية وقسمة التركات الرضائية والقضائية.',
+    features: ['قسمة التركات وفرز وتجنيب الأملاك', 'قضايا الأحوال الشخصية للمسلمين وغير المسلمين', 'توثيق الوصايا وإدارة الأوقاف العائلية'],
   },
   {
     id: 'corporate',
@@ -42,20 +57,12 @@ const practiceAreas = [
     features: ['إدارة المنازعات بين الشركاء', 'التمثيل في قضايا التحكيم التجاري (CRCICA)', 'إعادة الهيكلة والتصفية والاندماج'],
   },
   {
-    id: 'labor',
-    icon: Briefcase,
-    title: 'القضايا العمالية ومنازعات العمل',
-    tag: 'توازن وحماية الحقوق',
-    description: 'تسوية النزاعات العمالية المعقدة لأصحاب الأعمال والموظفين، صياغة لوائح العمل وحماية الحقوق المالية والمكافآت.',
-    features: ['دعاوى الفصل التعسفي والتعويضات', 'صياغة واعتماد لوائح العمل الداخلية', 'التمثيل أمام مكاتب ومحاكم العمل'],
-  },
-  {
     id: 'administrative',
     icon: Scale,
     title: 'مجلس الدولة والقضاء الإداري',
     tag: 'خبرة إدارية رائدة',
     description: 'الطعن على القرارات الإدارية، منازعات العقود الإدارية والمزايدات والمناقصات الحكومية ودعاوى الإلغاء والتعويض.',
-    features: ['الطعن أمام المحكمة الإدارية العليا', 'منازعات الضرائب والجمارك والقرارات السيادية', 'دعاوى التراخيص ومصادرات الأملاك'],
+    features: ['الطعن على القرارات الإدارية أمام مجلس الدولة', 'منازعات الضرائب والجمارك والقرارات السيادية', 'دعاوى التراخيص ومصادرات الأملاك'],
   },
   {
     id: 'contracts',
@@ -65,49 +72,40 @@ const practiceAreas = [
     description: 'صياغة وتدقيق العقود بمختلف أنواعها باللغتين العربية والإنجليزية لتقليل المخاطر وسد الثغرات القانونية قبل توقيعها.',
     features: ['تأسيس الشركات بجميع أشكالها القانونية', 'عقود الاستثمار والشراكات الاستراتيجية', 'اتفاقيات عدم الإفصاح والسرية (NDA)'],
   },
-  {
-    id: 'family',
-    icon: Users,
-    title: 'قضايا الأسرة والتركات والوصايا',
-    tag: 'خصوصية واحترافية تامة',
-    description: 'حلول تحفظ الحقوق والكرامة وتراعي أقصى درجات السرية والخصوصية في قضايا الأحوال الشخصية وقسمة التركات الرضائية والقضائية.',
-    features: ['قسمة التركات وفرز وتجنيب الأملاك', 'قضايا الأحوال الشخصية للمسلمين وغير المسلمين', 'توثيق الوصايا وإدارة الأوقاف العائلية'],
-  },
 ]
 
 // The 5-step process workflow (Verdict Signature Process Tabs)
 const processSteps = [
   {
     step: '01',
-    title: 'الاستقبال والتدقيق المبدئي',
+    title: 'الاستقبال والتدقيق',
     subtitle: 'Case Intake & Legal Audit',
     summary: 'جلسة استماع تفصيلية مع الموكل لفحص كافة المستندات والأوراق القانونية، وتحديد نقاط القوة والمخاطر المحتملة بموضوعية تامة.',
     deliverables: [
-      'فحص مستندي شامل لكافة عقود ومراسلات القضية',
+      'فحص مستندي شامل لكافة أوراق ومستندات القضية',
       'تحديد الإطار الزمني المتوقع والإجراءات الفورية',
-      'تقرير رأي قانوني مبدئي يحدد احتمالات النجاح',
     ],
     duration: '24 - 48 ساعة',
     guarantee: 'سرية بيانات مشددة بموجب ميثاق الشرف',
   },
   {
     step: '02',
-    title: 'بناء الاستراتيجية القضائية',
-    subtitle: 'Strategic Roadmap',
-    summary: 'وضع خطة هجومية ودفاعية محكمة مستندة إلى أحكام محكمة النقض والدستورية العليا السابقة لضمان أعلى نسب النجاح.',
+    title: 'بناء استراتيجية الدفاع',
+    subtitle: 'Defense Strategy',
+    summary: 'وضع خطة دفاع محكمة مبنية على دراسة دقيقة لوقائع القضية والمبادئ القضائية المستقرة، لتحقيق أفضل نتيجة ممكنة.',
     deliverables: [
       'صياغة خطة عمل مرحلية للنزاع القضائي',
       'تجهيز الدفوع الشكلية والموضوعية المسبقة',
       'تحديد استراتيجية المفاوضة في حال أمكن التسوية الودية',
     ],
     duration: '3 - 5 أيام عمل',
-    guarantee: 'مراجعة ثنائية من شريكين بالنقض',
+    guarantee: 'مراجعة ثنائية من شريكي المكتب',
   },
   {
     step: '03',
     title: 'جمع الأدلة وصياغة المذكرات',
     subtitle: 'Discovery & Pleadings',
-    summary: 'إعداد عرائض الدعاوى ومذكرات الدفاع وصحف الاستئناف أو النقض بأسلوب صلب ومفصل ومدعوم بحجج واقعية لا تقبل الشك.',
+    summary: 'إعداد عرائض الدعاوى ومذكرات الدفاع بأسلوب صلب ومفصل ومدعوم بحجج واقعية لا تقبل الشك.',
     deliverables: [
       'صياغة مذكرة الدفاع الأولى مع حوافظ المستندات',
       'استخراج الشهادات الرسمية وإجراء المعاينات المطلوبة',
@@ -120,9 +118,9 @@ const processSteps = [
     step: '04',
     title: 'المرافعة وإدارة الجلسات',
     subtitle: 'Court Advocacy & Trial',
-    summary: 'حضور كبار المحامين في ساحات المحاكم لتقديم المرافعة الشفوية بثبات ودهاء قانوني، وتتبع كل تفصيلة في محاضر الجلسات.',
+    summary: 'حضور محامي المكتب في ساحات المحاكم لتقديم المرافعة الشفوية بثبات ودهاء قانوني، وتتبع كل تفصيلة في محاضر الجلسات.',
     deliverables: [
-      'حضور محامٍ مقيد بالنقض أو الاستئناف في كل جلسة',
+      'حضور محامٍ من المكتب في كل جلسة',
       'تقرير فوري للموكل عقب انتهاء الجلسة بمجرياتها',
       'إيداع المذكرات التكميلية والمستندات الإضافية',
     ],
@@ -154,7 +152,7 @@ const testimonials = [
     rating: 5,
   },
   {
-    quote: 'تعاملت مع عدة مكاتب كبرى في مصر، لكن الاهتمام الفردي والدقة التي وجدتها لدى ميثاق كانت استثنائية. كل ورقة فُحصت بعناية محامٍ بالنقض شخصياً.',
+    quote: 'تعاملت مع عدة مكاتب كبرى في مصر، لكن الاهتمام الفردي والدقة التي وجدتها لدى ميثاق كانت استثنائية. كل ورقة فُحصت بعناية المحامي المسؤول شخصياً.',
     author: 'د. حسام الشربيني',
     role: 'مؤسس شركة للصناعات الدوائية',
     tag: 'نزاع عمالي وتجاري',
@@ -187,11 +185,7 @@ const testimonials = [
 const faqs = [
   {
     q: 'كيف يتم تحديد أتعاب المحاماة في ميثاق؟',
-    a: 'نتبع سياسة تسعير شفافة تماماً ومحددة في عقد اتفاق أتعاب مسبق. تعتمد الأتعاب على طبيعة القضية ودرجة تعقيدها والجهد المطلوب، دون أي مصاريف خفية أو مفاجآت لاحقة.',
-  },
-  {
-    q: 'هل يمكنني الحصول على استشارة قانونية عاجلة أونلاين؟',
-    a: 'نعم، نوفر خدمة الاستشارات القانونية عن بعد عبر مكالمات الفيديو المشفرة (Zoom / Google Meet) أو الاتصال الهاتفي، مع إمكانية إرسال وفحص المستندات إلكترونياً بأمان تام.',
+    a: 'نتبع سياسة شفافة تماماً ومحددة في عقد اتفاق أتعاب مسبق. تعتمد الأتعاب على طبيعة القضية ودرجة تعقيدها والجهد المطلوب، دون أي مصاريف خفية أو مفاجآت لاحقة.',
   },
   {
     q: 'ما هي الإجراءات المطلوبة لتوكيل محامٍ في قضيتي؟',
@@ -199,11 +193,7 @@ const faqs = [
   },
   {
     q: 'ما الذي يميز مكتب ميثاق عن غيره من المكاتب؟',
-    a: 'نحن ندمج بين هيبة وقوة الحضور القضائي في ساحات المحاكم بقيادة محامين مقيدين بالنقض، وبين المعايير المؤسسية الحديثة في إدارة القضايا والتواصل المستمر مع الموكل.',
-  },
-  {
-    q: 'هل تقدمون خدمات الاستشارات السنوية للشركات؟',
-    a: 'نعم، نقدم عقود رعاية واستشارات قانونية دورية للشركات تشمل تأسيس الشركات، مراجعة العقود، الامتثال القانوني، وإدارة النزاعات العمالية والتجارية باشتراك شهري أو سنوي مرن.',
+    a: 'نحن ندمج بين هيبة وقوة الحضور القضائي في ساحات المحاكم بمتابعة مباشرة من محامي المكتب، وبين المعايير المؤسسية الحديثة في إدارة القضايا والتواصل المستمر مع الموكل.',
   },
 ]
 
@@ -239,24 +229,25 @@ const contact = {
   phoneDisplay: '+20 114 315 7377',
 }
 
+// How long each partner's portrait stays in the hero before cross-fading
+const HERO_SLIDE_MS = 3000
+
 const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI']
 
 const lawyers = [
   {
     photo: '/images/lawyer-1.png',
-    alt: 'أ. محمد أبو زيد، الشريك المؤسس لمكتب ميثاق',
+    alt: 'أ. محمد أبو زيد، شريك مؤسس في مكتب ميثاق',
     name: 'أ. محمد أبو زيد',
-    role: 'الشريك المؤسس',
-    credential: 'محامٍ بالنقض والدستورية العليا',
-    bio: 'خبرة قضائية تتجاوز 18 عاماً في الدعاوى الجنائية الكبرى، قضايا الأموال العامة، والنزاعات الاستثمارية.',
+    role: 'شريك مؤسس',
+    bio: 'شارك في تأسيس ميثاق ليقدّم للموكل محامياً يعرف قضيته بالتفصيل. خمس سنوات من العمل في القضايا العمالية والجنائية، يتابع فيها الملف بنفسه من أول جلسة استماع حتى صدور الحكم.',
   },
   {
     photo: '/images/lawyer-2.png',
-    alt: 'أ. محمد شريف، الشريك الرئيسي لمكتب ميثاق',
+    alt: 'أ. محمد شريف، شريك مؤسس في مكتب ميثاق',
     name: 'أ. محمد شريف',
-    role: 'شريك رئيسي',
-    credential: 'مستشار مجلس الدولة والشركات',
-    bio: 'متخصص في الطعون الإدارية أمام مجلس الدولة، قضايا الضرائب والجمارك، وصياغة العقود الدولية.',
+    role: 'شريك مؤسس',
+    bio: 'شارك في تأسيس ميثاق على مبدأ الوضوح مع الموكل في كل خطوة. يعمل في قضايا الأسرة والتركات وقضايا الشركات، ويتولى إعداد المذكرات ومتابعة الجلسات وإطلاع الموكل أولاً بأول.',
   },
 ]
 
@@ -401,7 +392,7 @@ function SectionLabel({ children, tone = 'dark' }: { children: React.ReactNode; 
   )
 }
 
-/* Counts up to a figure like "+1,850", "94%" or "+250M" when scrolled into view. */
+/* Counts up to a figure like "+1,850", "94%" or "+250K" when scrolled into view. */
 function CountUp({ value, className = '' }: { value: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const match = value.match(/^([^\d]*)([\d,]+)(.*)$/)
@@ -463,6 +454,7 @@ export function MithaqSite() {
   const [activeService, setActiveService] = useState(0)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [showTopBanner, setShowTopBanner] = useState(true)
+  const [heroSlide, setHeroSlide] = useState(0)
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
@@ -491,6 +483,13 @@ export function MithaqSite() {
     )
     items.forEach((el) => io.observe(el))
     return () => io.disconnect()
+  }, [])
+
+  // Hero portrait alternates between the partners; stays still for reduced motion
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setInterval(() => setHeroSlide((n) => (n + 1) % lawyers.length), HERO_SLIDE_MS)
+    return () => window.clearInterval(id)
   }, [])
 
   // Close the mobile menu with Escape
@@ -654,14 +653,19 @@ export function MithaqSite() {
         <section id="home" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-ink text-white">
           <div aria-hidden="true" className="absolute inset-0 -z-10">
             <div className="settle absolute inset-0">
-              <Image
-                src="/images/lawyer-1.png"
-                alt=""
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-[25%_22%] brightness-[0.8] saturate-[0.6] lg:object-[15%_18%]"
-              />
+              {lawyers.map((l, i) => (
+                <Image
+                  key={l.photo}
+                  src={l.photo}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className={`object-cover object-[25%_22%] brightness-[0.8] saturate-[0.6] transition-opacity duration-1000 ease-in-out lg:object-[15%_18%] ${
+                    heroSlide === i ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              ))}
             </div>
             <div className="absolute inset-0 bg-gradient-to-l from-ink via-ink/80 to-ink/10" />
             <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-ink to-transparent" />
@@ -681,7 +685,7 @@ export function MithaqSite() {
                 ثقة نادرة.. وأثر قانوني يدوم.
               </h1>
               <ul className="rise-in mt-8 space-y-2.5 text-base text-white/90 sm:text-lg" style={{ '--d': '360ms' } as React.CSSProperties}>
-                {['محامون كبار مقيدون بالنقض في كل قضية', 'سجل مثبت أمام المحاكم في القضايا المعقدة', 'أتعاب واضحة في عقد مسبق، بلا مفاجآت'].map((b) => (
+                {['متابعة شخصية من محامي المكتب في كل قضية', 'سجل مثبت أمام المحاكم في القضايا المعقدة', 'أتعاب واضحة في عقد مسبق، بلا مفاجآت'].map((b) => (
                   <li key={b} className="flex items-center gap-3">
                     <span aria-hidden="true" className="size-1.5 rounded-full bg-white" />
                     {b}
@@ -730,15 +734,15 @@ export function MithaqSite() {
                 ))}
               </div>
               <div>
-                <CountUp value="+1,200" className="block text-xl font-semibold" />
+                <CountUp value="+100" className="block text-xl font-semibold" />
                 <span className="text-xs text-white/60">موكل في مصر والعالم العربي</span>
               </div>
             </div>
             <dl className="grid grid-cols-3">
               {[
-                { v: '+1,850', l: 'قضية محسومة' },
-                { v: '18', l: 'عاماً من الخبرة' },
-                { v: '+250M', l: 'جنيه حقوق مستردة' },
+                { v: '+250', l: 'قضية محسومة' },
+                { v: '5', l: 'سنوات من الخبرة' },
+                { v: '+250K', l: 'جنيه حقوق مستردة' },
               ].map((s, i) => (
                 <div key={s.l} className={`text-left ${i > 0 ? 'border-r border-white/15' : ''} px-3 sm:px-6`}>
                   <dt className="sr-only">{s.l}</dt>
@@ -771,75 +775,6 @@ export function MithaqSite() {
                 </a>
               </div>
             </div>
-
-            <div className="mt-20 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.3fr)]">
-              <div data-reveal className="group relative isolate flex min-h-[26rem] flex-col justify-end overflow-hidden rounded-2xl bg-ink p-6 text-white">
-                <Image
-                  src="/images/folder.png"
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 28vw, 90vw"
-                  className="-z-10 object-cover object-[70%_20%] opacity-55 transition-transform duration-700 ease-out-soft group-hover:scale-105"
-                />
-                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/10" />
-                <p className="text-xl font-semibold leading-snug">+1,200 موكل خدمناهم</p>
-                <p className="mt-2 text-sm text-white/70">أفراد وشركات في مصر ومختلف الدول العربية.</p>
-                <a href="#testimonials" className={cn(pillLight, 'mt-6 w-full')}>
-                  اقرأ آراء الموكلين
-                </a>
-              </div>
-
-              <div className="flex min-w-0 flex-col justify-between gap-12">
-                <dl className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
-                  {[
-                    { v: '94%', l: 'نسبة كسب القضايا لصالح موكلينا' },
-                    { v: '+120', l: 'تدقيق امتثال واستشارة سنوياً' },
-                    { v: '+250M', l: 'جنيه أموال وحقوق تمت حمايتها' },
-                    { v: '+450', l: 'عقد تجاري واستثماري صيغ بنجاح' },
-                  ].map((s, i) => (
-                    <div key={s.l} data-reveal style={{ '--d': `${i * 90}ms` } as React.CSSProperties}>
-                      <dt className="sr-only">{s.l}</dt>
-                      <dd className="text-left text-[clamp(2.25rem,4vw,3.5rem)] leading-none font-medium tracking-tight">
-                        <CountUp value={s.v} />
-                      </dd>
-                      <dd className="mt-3 text-sm leading-6 text-stone">{s.l}</dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <div data-reveal className="border-t border-sand pt-6">
-                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-                    <span className="flex items-center gap-2">
-                      <span className="font-semibold" dir="ltr">4.9</span>
-                      <span className="flex text-copper" role="img" aria-label="تقييم 4.9 من 5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="size-3.5 fill-current" aria-hidden="true" />
-                        ))}
-                      </span>
-                      <span className="text-stone">من 350+ مراجعة</span>
-                    </span>
-                    <span className="flex items-center gap-2 text-ink-3">
-                      <ShieldCheck className="size-4 text-copper-ink" aria-hidden="true" /> نقابة المحامين المصرية
-                    </span>
-                    <span className="flex items-center gap-2 text-ink-3">
-                      <Award className="size-4 text-copper-ink" aria-hidden="true" /> اتحاد المحامين العرب
-                    </span>
-                  </div>
-                  <div className="ticker-wrap ticker-mask mt-6 overflow-hidden" dir="ltr">
-                    <div className="ticker gap-10" style={{ '--ticker-duration': '50s' } as React.CSSProperties}>
-                      {[...testimonials, ...testimonials].map((t, i) => (
-                        <p key={i} dir="rtl" className="flex max-w-[24rem] shrink-0 items-center gap-3 text-sm text-stone" aria-hidden={i >= testimonials.length}>
-                          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-smoke text-xs font-semibold text-ink">
-                            {t.author.replace(/^[^ ]+ /, '').charAt(0)}
-                          </span>
-                          <span className="truncate">“{t.quote}”</span>
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -855,7 +790,7 @@ export function MithaqSite() {
                   <span className="highlight">خدمات قانونية موثوقة</span> في ستة مجالات أساسية.
                 </h2>
                 <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
-                  كل مجال يقوده محامٍ كبير — من أول استشارة حتى صدور الحكم النهائي وتنفيذه.
+                  كل مجال يتابعه محامٍ من فريقنا — من أول استشارة حتى صدور الحكم النهائي وتنفيذه.
                 </p>
               </div>
             </div>
@@ -1090,7 +1025,7 @@ export function MithaqSite() {
                   الأسماء التي تقف خلف كل نجاح قضائي.
                 </h2>
                 <p className="mt-7 max-w-2xl text-base leading-[1.95] text-stone sm:text-lg">
-                  كل قضية يقودها محامٍ كبير — من أول مكالمة حتى صدور الحكم.
+                  كل قضية يتابعها محامٍ من فريقنا — من أول مكالمة حتى صدور الحكم.
                 </p>
               </div>
             </div>
@@ -1113,7 +1048,7 @@ export function MithaqSite() {
                   <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-6">
                     <h3 className="text-2xl font-semibold">{l.name}</h3>
-                    <p className="mt-1 text-xs tracking-wide text-white/70">{l.role} — {l.credential}</p>
+                    <p className="mt-1 text-xs tracking-wide text-white/70">{l.role}</p>
                     <div className="collapse-grid group-hover:[grid-template-rows:1fr] group-focus-within:[grid-template-rows:1fr]">
                       <div>
                         <p className="pt-3 text-sm leading-7 text-white/80">{l.bio}</p>
