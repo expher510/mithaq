@@ -229,6 +229,12 @@ const contact = {
   phoneDisplay: '+20 114 315 7377',
 }
 
+const office = {
+  city: 'الإسماعيلية',
+  street: 'شارع الدقهلية، أمام مطبعة هارون',
+  mapUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('شارع الدقهلية أمام مطبعة هارون الإسماعيلية')}`,
+}
+
 // How long each partner's portrait stays in the hero before cross-fading
 const HERO_SLIDE_MS = 3000
 
@@ -1286,11 +1292,22 @@ export function MithaqSite() {
                   <span className="text-white/60">تابعنا</span>
                   <SocialIcons />
                 </div>
-                <div className="mt-5 flex items-center justify-between border-t border-white/15 pt-5 text-sm">
+                <div className="mt-5 border-t border-white/15 pt-5 text-sm">
                   <span className="text-white/60">المقر الرئيسي</span>
-                  <span className="flex items-center gap-2">
-                    <MapPin className="size-4 text-copper-glow" aria-hidden="true" /> الإسماعيلية، مصر
-                  </span>
+                  <a
+                    href={office.mapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group mt-2 flex items-start gap-2 leading-7 transition-colors hover:text-copper-glow"
+                  >
+                    <MapPin className="mt-1.5 size-4 shrink-0 text-copper-glow" aria-hidden="true" />
+                    <span>
+                      {office.city} | {office.street}
+                      <span className="block text-xs text-white/50 transition-colors group-hover:text-copper-glow">
+                        افتح على خرائط جوجل<span className="sr-only"> (تفتح في نافذة جديدة)</span>
+                      </span>
+                    </span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -1320,8 +1337,10 @@ export function MithaqSite() {
             </nav>
             <div>
               <h2 className="text-xs tracking-wide text-white/40">المقر</h2>
-              <p className="mt-5 text-sm font-medium">الإسماعيلية</p>
-              <p className="mt-1 text-sm leading-7 text-white/60">جمهورية مصر العربية</p>
+              <p className="mt-5 text-sm font-medium">{office.city}</p>
+              <a href={office.mapUrl} target="_blank" rel="noreferrer" className="mt-1 block text-sm leading-7 text-white/60 transition-colors hover:text-white">
+                {office.street}
+              </a>
             </div>
             <div>
               <h2 className="text-xs tracking-wide text-white/40">تواصل</h2>
